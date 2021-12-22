@@ -5,6 +5,7 @@
 #============================  TO DO  =====================================
 # make paths configurable
 # add warnings
+# Add a Getting Started section after script completes - quiick instructions on files put and get, cat and dog
 # if we set the same port for everyone, what happens? 
 # write a Powershell script to set up a Linux VM for Windows users
 #=================================================================================
