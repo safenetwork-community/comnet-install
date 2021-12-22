@@ -50,7 +50,7 @@ safe networks check
 safe networks
 
 # Add a node
-$NODE_BIN_PATH/sn_node \
+safe node join \
 --skip-auto-port-forwarding \
 --log-dir $LOG_DIR_PATH \
 --public-addr $PUBLIC_IP:34567     #Placeholder for now
