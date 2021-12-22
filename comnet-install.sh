@@ -2,14 +2,15 @@
 
 # script to set up comnet - community testing for the SAFE network
 
-#TO DO
-
+#============================  TO DO  =====================================
 # make paths configurable
 # add warnings
 # if we set the same port for everyone, what happens? 
 # write a Powershell script to set up a Linux VM for Windows users
+#=================================================================================
 echo "================================================================================================"
 echo "This script is only for 'vanilla' linux systems on standard x86-64 PC hardware"
+echo " A Windows version is in work. Thank you for your patience.
 echo 
 echo
 PUBLIC_IP=$(echo `curl -s ifconfig.me`)
@@ -36,26 +37,11 @@ echo
 
 # clean up from last testnet
 rm -rf $SAFE_ROOT
-#if [ -d "$TMP_DIR" ]; then rm -Rf $TMP_DIR; fi
-
-# grab latest sn_node and prepare it for use
-#mkdir $TMP_DIR && cd $TMP_DIR
-#wget -q $SN_NODE_ASSET
-#tar xvzf sn_node-0.51.7-x86_64-unknown-linux-musl.tar.gz
-#mv sn_node sn_node-0.51.7
-#chmod +x sn_node-0.51.7
-#chown $USER:$USER sn_node-0.51.7
 
 # get sn_cli
 cd
 curl -so- https://install-safe.s3.eu-west-2.amazonaws.com/install.sh | bash
 safe node install
-#mkdir -p $NODE_BIN_PATH
-#cp /tmp/comnet/sn_node-0.51.7 $NODE_BIN_PATH/
-#cd $NODE_BIN_PATH
-# Use a symlink so it is easy to keep various versions of sn_node around to easily switch if req'd
-#Or maybe not? -  skip the symlinks to KISS
-#ln -s sn_node-0.51.7 sn_node
 
 # set up the network
 safe networks add comnet $COMNET_CONN_INFO
@@ -64,9 +50,8 @@ safe networks check
 safe networks
 
 # Add a node
-
 $NODE_BIN_PATH/sn_node \
 --skip-auto-port-forwarding \
 --log-dir $LOG_DIR_PATH \
---public-addr $PUBLIC_IP:34567
+--public-addr $PUBLIC_IP:34567     #Placeholder for now
 #--public-addr $PUBLIC_IP:$NODE_PORT
