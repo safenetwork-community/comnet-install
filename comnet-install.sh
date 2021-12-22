@@ -10,7 +10,7 @@
 #=================================================================================
 echo "================================================================================================"
 echo "This script is only for 'vanilla' linux systems on standard x86-64 PC hardware"
-echo " A Windows version is in work. Thank you for your patience.
+echo " A Windows version is in work. Thank you for your patience."
 echo 
 echo
 PUBLIC_IP=$(echo `curl -s ifconfig.me`)
