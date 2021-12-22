@@ -53,7 +53,6 @@ safe networks
 # Add a node
 safe node join \
 --skip-auto-port-forwarding \
-
 --public-addr $PUBLIC_IP:34567     #Placeholder for now
 #--public-addr $PUBLIC_IP:$NODE_PORT
 # --log-dir $LOG_DIR_PATH \
