@@ -38,7 +38,7 @@ rm -rf $SAFE_ROOT
 
 # get sn_cli
 cd
-curl -so- https://install-safe.s3.eu-west-2.amazonaws.com/install.sh | bash
+curl -so- https://raw.githubusercontent.com/maidsafe/safe_network/master/resources/scripts/install.sh | bash
 safe node install
 
 # set up the network
