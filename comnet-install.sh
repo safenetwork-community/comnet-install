@@ -51,4 +51,4 @@ safe networks
 
 echo "-----------------------------   Getting Started   -----------------------------------------------------------"
 echo " SAFE network files have been installed and configured. You can now use the *safe files put* command to upload files to the network." 
-echo "Append *-r* if you want to upload a directry full of files and any sub-directories. 
+echo "Append *-r* if you want to upload a directry full of files and any sub-directories. "
