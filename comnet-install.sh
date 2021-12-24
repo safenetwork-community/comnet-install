@@ -24,13 +24,14 @@ COMNET_CONN_INFO=https://sn-comnet.s3.eu-west-2.amazonaws.com/node_connection_in
 SN_CLI_QUERY_TIMEOUT=180
 RUST_LOG=safe_network=info,qp2p=info   
 
+echo "=========================================================================="
 echo "This script will install comnet - community testing for the SAFE network"
 echo "comnet files will be installed in "$SAFE_ROOT
 echo "log files will be stored in "$LOG_DIR_PATH
 #echo "data files will be stored in "$DATA_DIR_PATH
 echo
 echo
-echo "Your public IP address is " $PUBLIC_IP
+#echo "Your public IP address is " $PUBLIC_IP
 echo
 
 # clean up from last testnet
@@ -46,3 +47,8 @@ safe networks add comnet $COMNET_CONN_INFO
 safe networks switch comnet
 safe networks check
 safe networks
+
+
+echo "-----------------------------   Getting Started   -----------------------------------------------------------"
+echo " SAFE network files have been installed and configured. You can now use the *safe files put* command to upload files to the network." 
+echo "Append *-r* if you want to upload a directry full of files and any sub-directories. 
