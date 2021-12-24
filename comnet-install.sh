@@ -52,3 +52,10 @@ safe networks
 echo "-----------------------------   Getting Started   -----------------------------------------------------------"
 echo " SAFE network files have been installed and configured. You can now use the *safe files put* command to upload files to the network." 
 echo "Append *-r* if you want to upload a directry full of files and any sub-directories. "
+echo " See https://github.com/maidsafe/sn_cli#files-put for more details"
+echo
+echo
+echo
+echo " more getting started info will be posted shortly. Keep checking back on Github for the latest" 
+
+
