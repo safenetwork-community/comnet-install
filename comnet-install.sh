@@ -12,8 +12,8 @@ echo "This script is only for 'vanilla' linux systems on standard x86-64 PC hard
 echo " A Windows version is in work. Thank you for your patience."
 echo 
 echo
-#PUBLIC_IP=$(echo `curl -s ifconfig.me`)
-#NODE_PORT= #TO DO      if we set the same port for everyone, what happens? 
+PUBLIC_IP=$(echo `curl -s ifconfig.me`)
+NODE_PORT=12000
 TMP_DIR=/tmp/comnet
 SAFE_ROOT=/home/$USER/.safe
 NODE_BIN_PATH=$SAFE_ROOT/node
@@ -31,7 +31,7 @@ echo "log files will be stored in "$LOG_DIR_PATH
 #echo "data files will be stored in "$DATA_DIR_PATH
 echo
 echo
-#echo "Your public IP address is " $PUBLIC_IP
+echo "Your public IP address is " $PUBLIC_IP
 echo
 
 # clean up from last testnet
@@ -40,6 +40,8 @@ rm -rf $SAFE_ROOT
 # get sn_cli
 cd
 curl -so- https://install-safe.s3.eu-west-2.amazonaws.com/install.sh | bash
+
+#get sn_node
 safe node install
 
 # set up the network
