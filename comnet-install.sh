@@ -23,7 +23,9 @@ fi
 read -p " Enter the vault size in Gb [ default 5Gb]: " VAULT_SIZE
 VAULT_SIZE=${VAULT_SIZE}
 echo $VAULT_SIZE "Gb will be allocated for storing chunks"
-
+ip a > /tmp/ipa.txt
+ACTIVE_IF=`grep "2: " /tmp/ipa.txt|cut -f2 -d':'|cut -c2-`
+echo $ACTIVE_IF
 
 sudo apt update
 sudo apt install snapd build-essential
@@ -33,7 +35,7 @@ sudo snap install curl
 
 
 #set this to eth0 for now to work with AWS
-LOCAL_IP=$(echo `ifdata -pa eth0`)
+LOCAL_IP=$(echo `ifdata -pa $ACTIVE_IF`)
 PUBLIC_IP=$(echo `curl -s ifconfig.me`)
 SAFE_PORT=12000
 SAFENET=folaht
@@ -72,7 +74,7 @@ echo "SAFE Node install completed"
 echo "Attempting to join the network using the following parameters"
 echo ""
 echo ""
-echo "--max-capacity" $MAX_NODE_CAPACITY
+echo "--max-capacity" $VAULT_SIZE
 echo "--local-addr" $LOCAL_IP":"$SAFE_PORT
 echo $LOCAL_IP
 
