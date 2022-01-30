@@ -54,7 +54,7 @@ curl -so- https://raw.githubusercontent.com/maidsafe/safe_network/master/resourc
 echo "SAFE CLI install completed"
 safe --version
 PATH=$PATH:/$HOME/.safe/cli:$HOME/.cargo/bin 
-safe networks check
+#safe networks check
 safe networks add $SAFENET $CONFIG_URL
 safe networks switch $SAFENET
 safe networks
