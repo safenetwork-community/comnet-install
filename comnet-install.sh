@@ -39,7 +39,7 @@ SAFE_PORT=12000
 SAFENET=folaht
 CONFIG_URL=https://link.tardigradeshare.io/s/julx763rsy2egbnj2nixoahpobgq/rezosur/koqfig/sjefolaht_node_connection_info.config?wrap=0
 #CONFIG_URL=https://sn-comnet.s3.eu-west-2.amazonaws.com/node_connection_info.config
-MAX_NODE_CAPACITY=$(numfmt --from auto 5Gi)
+VAULT_SIZE=$(numfmt --from auto $VAULT_SIZE)
 LOG_DIR=$HOME/.safe/node/local_node
 
 
@@ -79,7 +79,7 @@ echo $LOCAL_IP
 
 RUST_LOG=safe_network=trace \
     ~/.safe/node/sn_node \
-    --max-capacity $MAX_NODE_CAPACITY \
+    --max-capacity $VAULT_SIZE \
     --local-addr $LOCAL_IP:$SAFE_PORT \
     --public-addr $PUBLIC_IP:$SAFE_PORT \
     --skip-auto-port-forwarding \
