@@ -27,18 +27,13 @@ VAULT_SIZE=${GB_ALLOCATED:-5}
 echo $VAULT_SIZE "Gb will be allocated for storing chunks"
 ip a > /tmp/ipa.txt
 ACTIVE_IF=`grep "2: " /tmp/ipa.txt|cut -f2 -d':'|cut -c2-`
-echo $ACTIVE_IF
-#clean up
-rm /tmp/ipa/txt
 
-sudo apt update
-sudo apt install snapd build-essential
-sudo snap install curl
+#Install the dependencies
+#sudo apt update
+#sudo apt install snapd build-essential
+#sudo snap install curl
 
-#exit 
-
-
-#set this to eth0 for now to work with AWS
+ACTIVE_IF=$(ip a |grep "2: " | awk -F ":" '{ print $2 }' | xargs)
 LOCAL_IP=$(echo `ifdata -pa $ACTIVE_IF`)
 PUBLIC_IP=$(echo `curl -s ifconfig.me`)
 SAFE_PORT=12000
@@ -80,7 +75,7 @@ echo ""
 echo ""
 echo "--max-capacity" $VAULT_SIZE
 echo "--local-addr" $LOCAL_IP":"$SAFE_PORT
-echo $LOCAL_IP
+echo "--public-addr" $PUBLIC_IP":"$SAFE_PORT
 
 
 RUST_LOG=safe_network=trace \
