@@ -1,52 +1,107 @@
 #!/bin/bash
 
-# script to set up comnet - community testing for the SAFE network
+echo "--------------------------------------------------------------------------------------"
+echo ""
+echo "This script will install everything needed to join the SAFE network testnets for Ubuntu "
+echo ""
+echo " any existing SAFE installation will be DELETED"
+echo " vdash is a program by @happybeing to monitor your SAFE node."
+echo " Rust will be installed if necessary"
+echo ""
+echo "OK to proceed [Y,n]"
+read input
 
-#============================  TO DO  =====================================
-# add warnings
-# Add a Getting Started section after script completes - quiick instructions on files put and get, cat and dog
+if [[ $input == "Y" || $input == "y" ]]; then
+        echo "OK then..."
+else
+       echo "Bye now..."
+       
+       exit
+fi
 
-#=================================================================================
-echo "================================================================================================"
-echo "This script is only for 'vanilla' linux systems on standard x86-64 PC hardware"
-echo " A Windows version is in work. Thank you for your patience."
-echo 
-echo
-#PUBLIC_IP=$(echo `curl -s ifconfig.me`)
-#NODE_PORT= #TO DO      if we set the same port for everyone, what happens? 
-TMP_DIR=/tmp/comnet
-SAFE_ROOT=/home/$USER/.safe
-NODE_BIN_PATH=$SAFE_ROOT/node
-SAFE_BIN_PATH=$SAFE_ROOT/sn_cli
-LOG_DIR_PATH=$SAFE_ROOT/logs
-COMNET_CONN_INFO=https://sn-comnet.s3.eu-west-2.amazonaws.com/node_connection_info.config
 
-SN_CLI_QUERY_TIMEOUT=180
-RUST_LOG=safe_network=info,qp2p=info   
+read -p " Enter the vault size in Gb [ default 5Gb]: " VAULT_SIZE
+VAULT_SIZE=${VAULT_SIZE}
+echo $VAULT_SIZE "Gb will be allocated for storing chunks"
 
-echo "=========================================================================="
-echo "This script will install comnet - community testing for the SAFE network"
-echo "comnet files will be installed in "$SAFE_ROOT
-echo "log files will be stored in "$LOG_DIR_PATH
-#echo "data files will be stored in "$DATA_DIR_PATH
-echo
-echo
-#echo "Your public IP address is " $PUBLIC_IP
-echo
 
-# clean up from last testnet
-rm -rf $SAFE_ROOT
+sudo apt update
+sudo apt install snapd build-essential
+sudo snap install curl
 
-# get sn_cli
-cd
-curl -so- https://install-safe.s3.eu-west-2.amazonaws.com/install.sh | bash
+#exit 
+
+LOCAL_IP=$(echo `ifdata -pa enp5s0`)
+PUBLIC_IP=$(echo `curl -s ifconfig.me`)
+SAFE_PORT=12000
+SAFENET=folaht
+CONFIG_URL=https://link.tardigradeshare.io/s/julx763rsy2egbnj2nixoahpobgq/rezosur/koqfig/sjefolaht_node_connection_info.config?wrap=0
+#CONFIG_URL=https://sn-comnet.s3.eu-west-2.amazonaws.com/node_connection_info.config
+MAX_NODE_CAPACITY=$(numfmt --from auto 5Gi)
+LOG_DIR=$HOME/.safe/node/local_node
+
+
+
+
+
+# Install Safe software and configuration
+
+rm -rf $HOME/.safe
+curl -so- https://raw.githubusercontent.com/maidsafe/safe_network/master/resources/scripts/install.sh | bash
+
+echo "SAFE CLI install completed"
+safe --version
+
+
 safe node install
+echo "SAFE Node install completed"
 
-# set up the network
-safe networks add comnet $COMNET_CONN_INFO
-safe networks switch comnet
+
+PATH=$PATH:/$HOME/.safe/cli:$HOME/.cargo/bin 
 safe networks check
+safe networks add $SAFENET $CONFIG_URL
+safe networks switch $SAFENET
 safe networks
+sleep 1
+export SN_CLI_QUERY_TIMEOUT=3600
+
+# Join a node from home
+
+echo "Attempting to join the network using the following parameters"
+echo ""
+echo ""
+echo "--max-capacity" $MAX_NODE_CAPACITY
+echo "--local-addr" $LOCAL_IP":"$SAFE_PORT
+echo $LOCAL_IP
+
+
+RUST_LOG=safe_network=trace \
+    ~/.safe/node/sn_node \
+    --max-capacity $MAX_NODE_CAPACITY \
+    --local-addr $LOCAL_IP:$SAFE_PORT \
+    --public-addr $PUBLIC_IP:$SAFE_PORT \
+    --skip-auto-port-forwarding \
+    --log-dir $LOG_DIR
+
+#clear
+echo "_____________________________________________________________________________________________________"
+echo ""
+echo "                    Now installing rust and vdash from @happybeing"
+echo ""
+echo ""
+echo "       press 'q' to quit vdash     --- this will not interfere with your node ---"
+
+echo  ""
+
+sleep 3
+
+
+
+# Install or update vdash
+sudo snap install rustup --classic
+rustup toolchain install stable
+cargo install vdash
+vdash $LOG_DIR/sn_node.log
 
 
 echo "-----------------------------   Getting Started   -----------------------------------------------------------"
