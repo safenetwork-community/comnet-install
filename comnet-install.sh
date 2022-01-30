@@ -30,7 +30,7 @@ ACTIVE_IF=`grep "2: " /tmp/ipa.txt|cut -f2 -d':'|cut -c2-`
 
 #Install the dependencies
 #sudo apt update
-#sudo apt install snapd build-essential
+#sudo apt install snapd build-essential moreutils
 #sudo snap install curl
 
 ACTIVE_IF=$(ip a |grep "2: " | awk -F ":" '{ print $2 }' | xargs)
