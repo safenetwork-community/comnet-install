@@ -53,19 +53,19 @@ curl -so- https://raw.githubusercontent.com/maidsafe/safe_network/master/resourc
 
 echo "SAFE CLI install completed"
 safe --version
-
-
-safe node install
-echo "SAFE Node install completed"
-
-
 PATH=$PATH:/$HOME/.safe/cli:$HOME/.cargo/bin 
 safe networks check
 safe networks add $SAFENET $CONFIG_URL
 safe networks switch $SAFENET
 safe networks
-sleep 1
+sleep 3
 export SN_CLI_QUERY_TIMEOUT=3600
+
+safe node install
+echo "SAFE Node install completed"
+
+
+
 
 # Join a node from home
 
