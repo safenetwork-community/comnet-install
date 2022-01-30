@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/usr/bin/env bash
 
 echo "--------------------------------------------------------------------------------------"
 echo ""
@@ -26,6 +26,8 @@ echo $VAULT_SIZE "Gb will be allocated for storing chunks"
 ip a > /tmp/ipa.txt
 ACTIVE_IF=`grep "2: " /tmp/ipa.txt|cut -f2 -d':'|cut -c2-`
 echo $ACTIVE_IF
+#clean up
+rm /tmp/ipa/txt
 
 sudo apt update
 sudo apt install snapd build-essential
