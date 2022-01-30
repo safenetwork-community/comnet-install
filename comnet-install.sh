@@ -25,9 +25,6 @@ MAX_NODE_CAPACITY=$(numfmt --from auto 5Gi)
 LOG_DIR=$HOME/.safe/node/local_node
 
 
-
-
-
 # Install Safe software and configuration
 
 rm -rf $HOME/.safe
@@ -59,7 +56,7 @@ echo "--local-addr" $LOCAL_IP":"$SAFE_PORT
 echo $LOCAL_IP
 
 
-RUST_LOG=safe_network=trace \
+RUST_LOG=safe_network=trace,qp2p=info \
     ~/.safe/node/sn_node \
     --max-capacity $MAX_NODE_CAPACITY \
     --local-addr $LOCAL_IP:$SAFE_PORT \
