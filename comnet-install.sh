@@ -2,11 +2,13 @@
 
 echo "--------------------------------------------------------------------------------------"
 echo ""
-echo "This script will install everything needed to join the SAFE network testnets for Ubuntu "
+echo "This script will install everything needed to join the SAFE network testnets for"
+echo "Ubuntu like machines"
 echo ""
-echo " any existing SAFE installation will be DELETED"
-echo " vdash is a program by @happybeing to monitor your SAFE node."
-echo " Rust will be installed if necessary"
+echo " Any existing SAFE installation will be DELETED"
+echo ""
+echo " vdash is a program by @happybeing to monitor your SAFE node. https://github.com/happybeing/vdash"
+echo " Vdash requires Rust to be installed"
 echo ""
 echo "OK to proceed [Y,n]"
 read input
@@ -20,8 +22,8 @@ else
 fi
 
 
-read -p " Enter the vault size in Gb [ default 5Gb]: " VAULT_SIZE
-VAULT_SIZE=${VAULT_SIZE}
+read -p " Enter the vault size in Gb [5Gb]: " GB_ALLOCATED
+VAULT_SIZE=${GB_ALLOCATED:-5}
 echo $VAULT_SIZE "Gb will be allocated for storing chunks"
 ip a > /tmp/ipa.txt
 ACTIVE_IF=`grep "2: " /tmp/ipa.txt|cut -f2 -d':'|cut -c2-`
@@ -43,7 +45,7 @@ SAFE_PORT=12000
 SAFENET=folaht
 CONFIG_URL=https://link.tardigradeshare.io/s/julx763rsy2egbnj2nixoahpobgq/rezosur/koqfig/sjefolaht_node_connection_info.config?wrap=0
 #CONFIG_URL=https://sn-comnet.s3.eu-west-2.amazonaws.com/node_connection_info.config
-VAULT_SIZE=$(numfmt --from auto $VAULT_SIZE)
+VAULT_SIZE=$((1024*1024*1024*$GB_ALLOCATED))
 LOG_DIR=$HOME/.safe/node/local_node
 
 
@@ -63,7 +65,7 @@ safe networks add $SAFENET $CONFIG_URL
 safe networks switch $SAFENET
 safe networks
 sleep 3
-export SN_CLI_QUERY_TIMEOUT=3600
+SN_CLI_QUERY_TIMEOUT=3600
 
 safe node install
 echo "SAFE Node install completed"
@@ -108,15 +110,4 @@ sudo snap install rustup --classic
 rustup toolchain install stable
 cargo install vdash
 vdash $LOG_DIR/sn_node.log
-
-
-echo "-----------------------------   Getting Started   -----------------------------------------------------------"
-echo " SAFE network files have been installed and configured. You can now use the *safe files put* command to upload files to the network." 
-echo "Append *-r* if you want to upload a directry full of files and any sub-directories. "
-echo " See https://github.com/maidsafe/sn_cli#files-put for more details"
-echo
-echo
-echo
-echo " more getting started info will be posted shortly. Keep checking back on Github for the latest" 
-
 
