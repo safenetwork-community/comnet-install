@@ -31,7 +31,9 @@ sudo snap install curl
 
 #exit 
 
-LOCAL_IP=$(echo `ifdata -pa enp5s0`)
+
+#set this to eth0 for now to work with AWS
+LOCAL_IP=$(echo `ifdata -pa eth0`)
 PUBLIC_IP=$(echo `curl -s ifconfig.me`)
 SAFE_PORT=12000
 SAFENET=folaht
