@@ -36,8 +36,8 @@ echo "_________________________________________________________"
 
 
 PATH=$PATH:/$HOME/.safe/cli:$HOME/.cargo/bin 
-ACTIVE_IF=(cd /sys/class/net; echo *)|awk '{print $1;}'
 
+ACTIVE_IF=$((cd /sys/class/net; echo *)|awk '{print $1;}')
 LOCAL_IP=$(echo `ifdata -pa $ACTIVE_IF`)
 PUBLIC_IP=$(echo `curl -s ifconfig.me`)
 SAFE_PORT=12000
