@@ -24,8 +24,7 @@ read input
 if [[ $input == "Y" || $input == "y" ]]; then
         echo "OK then, let's go."
 else
-       echo "Bye now..."
-       
+       echo "Bye now..."     
        exit
 fi
 
@@ -34,6 +33,9 @@ VAULT_SIZE=${GB_ALLOCATED:-5}
 echo $VAULT_SIZE "Gb will be allocated for storing chunks"
 echo "_________________________________________________________"
 
+sudo apt -qq update >/dev/null
+sudo apt -qq install -y snapd build-essential moreutils >/dev/null
+sudo snap install curl
 
 PATH=$PATH:/$HOME/.safe/cli:$HOME/.cargo/bin 
 
@@ -48,29 +50,22 @@ VAULT_SIZE=$((1024*1024*1024*$GB_ALLOCATED))
 LOG_DIR=$HOME/.safe/node/local_node
 SN_CLI_QUERY_TIMEOUT=3600
 
-#Install the dependencies
-
-sudo apt -qq update >/dev/null
-sudo apt -qq install -y snapd build-essential moreutils >/dev/null
-sudo snap install curl
-
 # Install Safe software and configuration
-# clear out any old files
-rm -rf $HOME/.safe
+
+rm -rf $HOME/.safe # clear out any old files
 
 #get the CLI
 curl -so- https://raw.githubusercontent.com/maidsafe/safe_network/master/resources/scripts/install.sh | bash
-echo "SAFE CLI install completed"
-safe --version
-#PATH=$PATH:/$HOME/.safe/cli:$HOME/.cargo/bin 
-#safe networks check
+echo $(safe --version) "install complete"
+
 safe networks add $SAFENET $CONFIG_URL
 safe networks switch $SAFENET
 safe networks
-sleep 3
-
-
+sleep 2
 safe node install
+echo $(safe node bin-version) "install complete"
+
+
 echo "SAFE Node install completed"
 
 # Join a node from home
