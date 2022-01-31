@@ -21,7 +21,6 @@ else
        exit
 fi
 
-
 read -p " Enter the vault size in Gb [5Gb]: " GB_ALLOCATED
 VAULT_SIZE=${GB_ALLOCATED:-5}
 echo $VAULT_SIZE "Gb will be allocated for storing chunks"
@@ -44,14 +43,12 @@ VAULT_SIZE=$((1024*1024*1024*$GB_ALLOCATED))
 LOG_DIR=$HOME/.safe/node/local_node
 
 
-
-
-
 # Install Safe software and configuration
-
+# clear out any old files
 rm -rf $HOME/.safe
-curl -so- https://raw.githubusercontent.com/maidsafe/safe_network/master/resources/scripts/install.sh | bash
 
+#get the CLI
+curl -so- https://raw.githubusercontent.com/maidsafe/safe_network/master/resources/scripts/install.sh | bash
 echo "SAFE CLI install completed"
 safe --version
 #PATH=$PATH:/$HOME/.safe/cli:$HOME/.cargo/bin 
@@ -65,18 +62,7 @@ SN_CLI_QUERY_TIMEOUT=3600
 safe node install
 echo "SAFE Node install completed"
 
-
-
-
 # Join a node from home
-
-echo "Attempting to join the network using the following parameters"
-echo ""
-echo ""
-echo "--max-capacity" $VAULT_SIZE
-echo "--local-addr" $LOCAL_IP":"$SAFE_PORT
-echo "--public-addr" $PUBLIC_IP":"$SAFE_PORT
-
 
 RUST_LOG=safe_network=trace \
     ~/.safe/node/sn_node \
@@ -84,7 +70,16 @@ RUST_LOG=safe_network=trace \
     --local-addr $LOCAL_IP:$SAFE_PORT \
     --public-addr $PUBLIC_IP:$SAFE_PORT \
     --skip-auto-port-forwarding \
-    --log-dir $LOG_DIR
+    --log-dir $LOG_DIR    
+    
+echo "Attempting to join the '$SAFENET' network using the following parameters"
+echo ""
+echo ""
+echo "--max-capacity" $VAULT_SIZE
+echo "--local-addr" $LOCAL_IP":"$SAFE_PORT
+echo "--public-addr" $PUBLIC_IP":"$SAFE_PORT
+echo "--log-dir" $LOG_DIR
+echo "--skip-auto-port-forwarding"
 
 #clear
 echo "_____________________________________________________________________________________________________"
@@ -97,8 +92,6 @@ echo "       press 'q' to quit vdash     --- this will not interfere with your n
 echo  ""
 
 sleep 3
-
-
 
 # Install or update vdash
 sudo snap install rustup --classic
