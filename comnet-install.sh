@@ -1,6 +1,10 @@
 #!/usr/bin/env bash
 
 echo "--------------------------------------------------------------------------------------"
+echo "********************** SAFE NODE INSTALLER  *****************************************"
+echo ""
+echo ""
+echo ""
 echo ""
 echo "This script will install everything needed to join the SAFE network testnets for"
 echo "Ubuntu like machines"
@@ -9,6 +13,10 @@ echo " Any existing SAFE installation will be DELETED"
 echo ""
 echo " vdash is a program by @happybeing to monitor your SAFE node. https://github.com/happybeing/vdash"
 echo " Vdash requires Rust to be installed"
+echo ""
+echo "Once everthing is installed, your node will connect to the chosen testnet and vdash will be"
+echo "installed to display network and node information"
+echo ""
 echo ""
 echo "OK to proceed [y,N]"
 read input
@@ -21,18 +29,15 @@ else
        exit
 fi
 
-read -p " Enter the vault size in Gb [5Gb]: " GB_ALLOCATED
+read -p " How many Gb do you want to allocate to your vault? [5Gb]: " GB_ALLOCATED
 VAULT_SIZE=${GB_ALLOCATED:-5}
 echo $VAULT_SIZE "Gb will be allocated for storing chunks"
-ip a > /tmp/ipa.txt
-ACTIVE_IF=`grep "2: " /tmp/ipa.txt|cut -f2 -d':'|cut -c2-`
+echo "_________________________________________________________"
 
-#Install the dependencies
-sudo apt -qq update
-sudo apt -qq install -y snapd build-essential moreutils
-sudo snap install curl
+
 PATH=$PATH:/$HOME/.safe/cli:$HOME/.cargo/bin 
-ACTIVE_IF=$(ip a |grep "2: " | awk -F ":" '{ print $2 }' | xargs)
+ACTIVE_IF=(cd /sys/class/net; echo *)|awk '{print $1;}'
+
 LOCAL_IP=$(echo `ifdata -pa $ACTIVE_IF`)
 PUBLIC_IP=$(echo `curl -s ifconfig.me`)
 SAFE_PORT=12000
@@ -41,7 +46,13 @@ CONFIG_URL=https://link.tardigradeshare.io/s/julx763rsy2egbnj2nixoahpobgq/rezosu
 #CONFIG_URL=https://sn-comnet.s3.eu-west-2.amazonaws.com/node_connection_info.config
 VAULT_SIZE=$((1024*1024*1024*$GB_ALLOCATED))
 LOG_DIR=$HOME/.safe/node/local_node
+SN_CLI_QUERY_TIMEOUT=3600
 
+#Install the dependencies
+
+sudo apt -qq update
+sudo apt -qq install -y snapd build-essential
+sudo snap install curl
 
 # Install Safe software and configuration
 # clear out any old files
@@ -57,12 +68,20 @@ safe networks add $SAFENET $CONFIG_URL
 safe networks switch $SAFENET
 safe networks
 sleep 3
-SN_CLI_QUERY_TIMEOUT=3600
+
 
 safe node install
 echo "SAFE Node install completed"
 
 # Join a node from home
+
+echo "Attempting to join the '$SAFENET' network using the following parameters"
+echo ""
+echo "--max-capacity" $VAULT_SIZE
+echo "--local-addr" $LOCAL_IP":"$SAFE_PORT
+echo "--public-addr" $PUBLIC_IP":"$SAFE_PORT
+echo "--log-dir" $LOG_DIR
+echo "--skip-auto-port-forwarding"
 
 RUST_LOG=safe_network=trace \
     ~/.safe/node/sn_node \
@@ -71,14 +90,6 @@ RUST_LOG=safe_network=trace \
     --public-addr $PUBLIC_IP:$SAFE_PORT \
     --skip-auto-port-forwarding \
     --log-dir $LOG_DIR    
-    
-echo "Attempting to join the '$SAFENET' network using the following parameters"
-echo ""
-echo "--max-capacity" $VAULT_SIZE
-echo "--local-addr" $LOCAL_IP":"$SAFE_PORT
-echo "--public-addr" $PUBLIC_IP":"$SAFE_PORT
-echo "--log-dir" $LOG_DIR
-echo "--skip-auto-port-forwarding"
 
 #clear
 echo "_____________________________________________________________________________________________________"
