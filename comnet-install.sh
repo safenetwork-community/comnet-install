@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
-
-echo "--------------------------------------------------------------------------------------"
+# https://github.com/safenetwork-community
+# safenetwork-community  
 echo "********************** SAFE NODE INSTALLER  *****************************************"
 echo ""
 echo ""
@@ -50,8 +50,8 @@ SN_CLI_QUERY_TIMEOUT=3600
 
 #Install the dependencies
 
-sudo apt -qq update
-sudo apt -qq install -y snapd build-essential
+sudo apt -qq update >/dev/null
+sudo apt -qq install -y snapd build-essential moreutils >/dev/null
 sudo snap install curl
 
 # Install Safe software and configuration
