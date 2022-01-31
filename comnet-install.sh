@@ -78,7 +78,7 @@ echo "--public-addr" $PUBLIC_IP":"$SAFE_PORT
 echo "--log-dir" $LOG_DIR
 echo "--skip-auto-port-forwarding"
 
-RUST_LOG=safe_network=trace \
+RUST_LOG=safe_network=trace,qp2p=info \
     ~/.safe/node/sn_node \
     --max-capacity $VAULT_SIZE \
     --local-addr $LOCAL_IP:$SAFE_PORT \
