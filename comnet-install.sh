@@ -10,11 +10,11 @@ echo ""
 echo " vdash is a program by @happybeing to monitor your SAFE node. https://github.com/happybeing/vdash"
 echo " Vdash requires Rust to be installed"
 echo ""
-echo "OK to proceed [Y,n]"
+echo "OK to proceed [y,N]"
 read input
 
 if [[ $input == "Y" || $input == "y" ]]; then
-        echo "OK then..."
+        echo "OK then, let's go."
 else
        echo "Bye now..."
        
@@ -73,7 +73,6 @@ RUST_LOG=safe_network=trace \
     --log-dir $LOG_DIR    
     
 echo "Attempting to join the '$SAFENET' network using the following parameters"
-echo ""
 echo ""
 echo "--max-capacity" $VAULT_SIZE
 echo "--local-addr" $LOCAL_IP":"$SAFE_PORT
