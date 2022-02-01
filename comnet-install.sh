@@ -19,7 +19,7 @@ echo "installed to display network and node information"
 echo ""
 echo ""
 echo "OK to proceed [y,N]"
-read input
+read -r input
 
 if [[ $input == "Y" || $input == "y" ]]; then
         echo "OK then, let's go."
@@ -28,7 +28,7 @@ else
        exit
 fi
 
-read -p " How many Gb do you want to allocate to your vault? [5Gb]: " GB_ALLOCATED
+read -p -r " How many Gb do you want to allocate to your vault? [5Gb]: " GB_ALLOCATED
 VAULT_SIZE=${GB_ALLOCATED:-5}
 echo "$VAULT_SIZE" "Gb will be allocated for storing chunks"
 echo "_________________________________________________________"
