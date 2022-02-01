@@ -28,9 +28,9 @@ else
        exit
 fi
 
-read -p -r " How many Gb do you want to allocate to your vault? [5Gb]: " GB_ALLOCATED
+read -p -r " How many GB do you want to allocate to your vault? [5 GB]: " GB_ALLOCATED
 VAULT_SIZE=${GB_ALLOCATED:-5}
-echo "$VAULT_SIZE" "Gb will be allocated for storing chunks"
+echo "$VAULT_SIZE" "GB will be allocated for storing chunks"
 echo "_________________________________________________________"
 
 sudo apt -qq update >/dev/null
