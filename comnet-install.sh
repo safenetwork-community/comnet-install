@@ -39,8 +39,9 @@ sudo snap install curl
 
 PATH=$PATH:/$HOME/.safe/cli:$HOME/.cargo/bin 
 
-ACTIVE_IF=$( ( cd /sys/class/net || exit; echo *)|awk '{print $1;}')
-LOCAL_IP=$(echo $(ifdata -pa "$ACTIVE_IF"))
+# ACTIVE_IF=$( ( cd /sys/class/net || exit; echo *)|awk '{print $1;}')
+# LOCAL_IP=$(echo $(ifdata -pa "$ACTIVE_IF"))
+LOCAL_IP=$(echo hostname -I)
 PUBLIC_IP=$(echo $(curl -s ifconfig.me))
 SAFE_PORT=12000
 SAFENET=southsidenet
