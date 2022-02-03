@@ -42,7 +42,7 @@ PATH=$PATH:/$HOME/.safe/cli:$HOME/.cargo/bin
 # ACTIVE_IF=$( ( cd /sys/class/net || exit; echo *)|awk '{print $1;}')
 # LOCAL_IP=$(echo $(ifdata -pa "$ACTIVE_IF"))
 LOCAL_IP=$(hostname -I)
-PUBLIC_IP=$(echo $(curl -s ifconfig.me))
+PUBLIC_IP=$(curl -s ifconfig.me)
 SAFE_PORT=12000
 SAFENET=southsidenet
 #CONFIG_URL=https://link.tardigradeshare.io/s/julx763rsy2egbnj2nixoahpobgq/rezosur/koqfig/sjefolaht_node_connection_info.config?wrap=0
