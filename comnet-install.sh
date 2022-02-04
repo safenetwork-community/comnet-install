@@ -137,9 +137,17 @@ echo "              Certain setups may require the default port that SAFE uses t
 echo "              Most users will be OK with the default port at 12000 "
 echo "              Only change this if you know what you are doing."
 echo ""
+
+#####################################################################################################################################change for default port
+#SAFE_PORT=12000
+#read -e -i "$SAFE_PORT" -p '              Press Enter to accept the default or edit it here [12000]' #SAFE_PORT
+#echo $SAFE_PORT
+
 SAFE_PORT=12000
-read -e -i "$SAFE_PORT" -p '              Press Enter to accept the default or edit it here [12000]' #SAFE_PORT
+read -e -i "$name" -p "              Press Enter to accept the default or edit it here $SAFE_PORT    " input
+SAFE_PORT="${input:-$SAFE_PORT}"
 echo $SAFE_PORT
+###########################################################################################################################################################
 
 sleep 2
 
@@ -151,7 +159,7 @@ echo "              Now installing SAFE and all necessary dependencies."
 echo "              This may take a few minutes depending on your download speed  "
 echo "              Thank you for your patience  "
 echo ""            
-echo -ne $(ColorBlue "              The world has waited a long time for SAFE - just a few seconds more....")
+echo "              The world has waited a long time for SAFE - just a few seconds more...."
 
 #exit
 
@@ -177,7 +185,7 @@ SN_CLI_QUERY_TIMEOUT=3600
 
 # Install Safe software and configuration
 
-#rm -rf "$HOME"/.safe # clear out any old files
+rm -rf "$HOME"/.safe # clear out any old files
 
 #get the CLI
 curl -so- https://raw.githubusercontent.com/maidsafe/safe_network/master/resources/scripts/install.sh | bash
@@ -206,13 +214,47 @@ echo "--public-addr" "$PUBLIC_IP"":"$SAFE_PORT
 echo "--log-dir" "$LOG_DIR"
 echo "--skip-auto-port-forwarding"
 
+
+############################neik proposal to run as service	###################################################################################################
+
+#RUST_LOG=safe_network=trace,qp2p=info \
+#    ~/.safe/node/sn_node \
+#    --max-capacity $VAULT_SIZE \
+#    --local-addr "$LOCAL_IP":$SAFE_PORT \
+#    --public-addr "$PUBLIC_IP":$SAFE_PORT \
+#    --skip-auto-port-forwarding \
+#    --log-dir "$LOG_DIR" & disown
+
+# start as service 
+
+safe node killall
+sudo systemctl stop sn_node.service
+	
+echo -n "#!/bin/bash
 RUST_LOG=safe_network=trace,qp2p=info \
-    ~/.safe/node/sn_node \
-    --max-capacity $VAULT_SIZE \
-    --local-addr "$LOCAL_IP":$SAFE_PORT \
-    --public-addr "$PUBLIC_IP":$SAFE_PORT \
-    --skip-auto-port-forwarding \
-    --log-dir "$LOG_DIR"    
+	~/.safe/node/sn_node \
+	--max-capacity $VAULT_SIZE \
+	--local-addr "$LOCAL_IP":$SAFE_PORT \
+	--public-addr "$PUBLIC_IP":$SAFE_PORT \
+	--skip-auto-port-forwarding \
+	--log-dir "$LOG_DIR" & disown"\
+| tee ~/.safe/node/start-node.sh
+
+chmod u+x ~/.safe/node/start-node.sh
+	
+echo -n "[Unit]
+Description=Safe Node
+[Service]
+User=$USER
+ExecStart=/home/$USER/.safe/node/start-node.sh
+RemainAfterExit=yes
+[Install]
+WantedBy=multi-user.target"\
+|sudo tee /etc/systemd/system/sn_node.service
+
+sudo systemctl start sn_node.service
+
+####################################################################################################################################################################
 
 #clear
 echo "_____________________________________________________________________________________________________"
