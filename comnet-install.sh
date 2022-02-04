@@ -159,9 +159,10 @@ echo "              Now installing SAFE and all necessary dependencies."
 echo "              This may take a few minutes depending on your download speed  "
 echo "              Thank you for your patience  "
 echo ""            
-echo "              The world has waited a long time for SAFE - just a few seconds more...."
+echo -ne $(ColorBlue "            The world has waited a long time for SAFE - just a few seconds more....")
+echo ""
+echo ""
 
-#exit
 
 #sudo apt -qq update >/dev/null
 #sudo apt -qq install -y snapd build-essential moreutils >/dev/null
