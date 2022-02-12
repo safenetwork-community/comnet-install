@@ -94,11 +94,11 @@ case $SAFENET_CHOICE in
     
     ;;
 
-  2)  SAFENET=comnet
+  2)  SAFENET=comnet-edgy
     CONFIG_URL=https://sn-comnet.s3.eu-west-2.amazonaws.com/node_connection_info_knife_edge.config
     ;;
 
-  3)https://www.youtube.com/results?search_query=celtic+highlights
+  3)
   SAFENET=southsidenet
     CONFIG_URL=https://comnet.snawaffadyke.com/southsidenet.config
 
@@ -134,11 +134,15 @@ echo ""
 echo ""
 echo ""
 echo "              Certain setups may require the default port that SAFE uses to be changed"
-echo "              Most users will be OK with the default port at 12000 "https://www.youtube.com/results?search_query=celtic+highlights
-echo "              Only change this if you know exactly what you are doing."
+echo "              Most users will be OK with the default port at 12000 "
+echo "              Only change this if you know what you are doing."
 echo ""
 
 #####################################################################################################################################change for default port
+#SAFE_PORT=12000
+#read -e -i "$SAFE_PORT" -p '              Press Enter to accept the default or edit it here [12000]' #SAFE_PORT
+#echo $SAFE_PORT
+
 SAFE_PORT=12000
 read -e -i "$name" -p "              Press Enter to accept the default or edit it here $SAFE_PORT    " input
 SAFE_PORT="${input:-$SAFE_PORT}"
@@ -154,18 +158,33 @@ echo ""
 echo "              Now installing SAFE and all necessary dependencies."
 echo "              This may take a few minutes depending on your download speed  "
 echo "              Thank you for your patience  "
-echo ""            
-echo -ne $(ColorBlue "  The world has waited a long time for SAFE - just a few seconds more....")
+echo ""
+echo -ne $(ColorBlue "            The world has waited a long time for SAFE - just a few seconds more....")
+echo ""
+echo ""
 
-#exit
 
-#sudo apt -qq update >/dev/null
-sudo apt -qq install -y snapd build-essential moreutils >/dev/null
+sudo apt -qq update >/dev/null
+sudo apt -qq install -y snapd build-essential moreutils tree >/dev/null
 sudo snap install curl
 sudo snap install rustup --classic
-rustup toolchain install latest
+rustup toolchain install stable
 
 
+mkdir -p \
+	$HOME/github-tmp \
+	$HOME/.safe/cli \
+	$HOME/.safe/node
+
+git clone https://github.com/maidsafe/safe_network.git ~/github-tmp/
+cd ~/github-tmp
+cargo build --release
+cp ~/github-tmp/target/release/safe ~/.safe/cli/
+cp ~/github-tmp/target/release/sn_node ~/.safe/node/
+tree  $HOME/.safe
+
+
+sleep 5
 cargo install vdash
 
 
@@ -183,14 +202,14 @@ SN_CLI_QUERY_TIMEOUT=3600
 
 # Install Safe software and configuration
 
-rm -rf "$HOME"/.safe # clear out any old files
+#rm -rf "$HOME"/.safe # clear out any old files
 
 #get the CLI
-curl -so- https://raw.githubusercontent.com/maidsafe/safe_network/master/resources/scripts/install.sh | bash
+#curl -so- https://raw.githubusercontent.com/maidsafe/safe_network/master/resources/scripts/install.sh | bash
 echo ""
 echo ""
 echo ""
-echo $(safe --version) "install complete"
+#echo $(safe --version) "install complete"
 
 safe networks add $SAFENET "$CONFIG_URL"
 safe networks switch $SAFENET
@@ -213,18 +232,17 @@ echo "--log-dir" "$LOG_DIR"
 echo "--skip-auto-port-forwarding"
 
 
+############################neik proposal to run as service	###################################################################################################
+
+#RUST_LOG=safe_network=trace,qp2p=info \
+#    ~/.safe/node/sn_node \
+#    --max-capacity $VAULT_SIZE \
+#    --local-addr "$LOCAL_IP":$SAFE_PORT \
+#    --public-addr "$PUBLIC_IP":$SAFE_PORT \
+#    --skip-auto-port-forwarding \
+#    --log-dir "$LOG_DIR" & disown
+
 # start as service 
-############               upgrade to latest           #####################
-rm ~/.safe/cli/safe
-rm ~/.safe/node/sn_node
-
-git clone https://github.com/maidsafe/safe_network.git ~/.safe/github
-cd ~/.safe/github
-cargo build --release
-cp ~/.safe/github/target/release/safe ~/.safe/cli/safe
-cp ~/.safe/github//target/release/sn_node ~/.safe/node/sn_node
-
-#################################################################################
 
 safe node killall
 sudo systemctl stop sn_node.service
@@ -261,4 +279,11 @@ echo ""
 echo "                    Now cofiguring vdash from @happybeing"
 echo ""
 echo ""
-echo "       press 'q' to quit vdash     --- t
+echo "       press 'q' to quit vdash     --- this will not interfere with your node ---"
+echo  ""
+
+sleep 3
+
+# Install or update vdash
+
+vdash "$LOG_DIR"/sn_node.log
