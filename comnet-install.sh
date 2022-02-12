@@ -95,7 +95,7 @@ case $SAFENET_CHOICE in
     ;;
 
   2)  SAFENET=comnet
-    CONFIG_URL=https://sn-comnet.s3.eu-west-2.amazonaws.com/node_connection_info.config
+    CONFIG_URL=https://sn-comnet.s3.eu-west-2.amazonaws.com/node_connection_info_knife_edge.config
     ;;
 
   3)
@@ -159,16 +159,21 @@ echo "              Now installing SAFE and all necessary dependencies."
 echo "              This may take a few minutes depending on your download speed  "
 echo "              Thank you for your patience  "
 echo ""            
-echo -ne $(ColorBlue "            The world has waited a long time for SAFE - just a few seconds more....")
-echo ""
-echo ""
+echo "              The world has waited a long time for SAFE - just a few seconds more...."
 
+#exit
 
-sudo apt -qq update >/dev/null
-sudo apt -qq install -y snapd build-essential moreutils >/dev/null
+#sudo apt -qq update >/dev/null
+#sudo apt -qq install -y snapd build-essential moreutils >/dev/null
 sudo snap install curl
-sudo snap install rustup --classic
-rustup toolchain install stable
+#sudo snap install rustup --classic
+#rustup toolchain install stable
+##########################################install and remove rust ###################
+sudo snap remove rustup
+
+##############################install rust
+curl https://sh.rustup.rs -sSf | sh -Y
+
 cargo install vdash
 
 
@@ -227,6 +232,17 @@ echo "--skip-auto-port-forwarding"
 #    --log-dir "$LOG_DIR" & disown
 
 # start as service 
+##########################################upgrade to latest#####################
+rm ~/.safe/cli/safe
+rm ~/.safe/node/sn_node
+
+git clone https://github.com/maidsafe/safe_network.git ~/.safe/github
+cd ~/.safe/github
+cargo build --release
+cp ~/.safe/github/target/release/safe ~/.safe/cli/safe
+cp ~/.safe/github//target/release/sn_node ~/.safe/node/sn_node
+
+#################################################################################
 
 safe node killall
 sudo systemctl stop sn_node.service
@@ -263,11 +279,4 @@ echo ""
 echo "                    Now cofiguring vdash from @happybeing"
 echo ""
 echo ""
-echo "       press 'q' to quit vdash     --- this will not interfere with your node ---"
-echo  ""
-
-sleep 3
-
-# Install or update vdash
-
-vdash "$LOG_DIR"/sn_node.log
+echo "       press 'q' to quit vdash     --- t
