@@ -14,6 +14,7 @@ Ubuntu like machines.
 - sn_cli
 - safe_network
 - moreutils
+- tree
 - build-essential
 - rust
 - vdash
