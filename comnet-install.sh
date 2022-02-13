@@ -24,10 +24,6 @@ ColorRed(){
 	echo -  $red$1$clear
 }
 
-
-
-
-
 clear
 echo  "********************** SAFE NODE INSTALLER  *****************************************"
 echo ""
@@ -44,6 +40,7 @@ echo " - curl                   -fetches the SAFE applications"
 echo " - sn_cli                 -the SAFE client program  "
 echo " - safe_network           -the SAFE network functionality "
 echo " - moreutils              -helper programs to assist in idenntifying your network settins"
+echo " - tree                   -needed to show the ~/.safe directory structure"
 echo " - build-essential        -required to build vdash on top of rust "
 echo " - rust                   -Rust is a systems programming lanuage   "
 echo " - vdash                  -vdash is a Rust program by @happybeing to monitor your SAFE node  "
@@ -109,17 +106,15 @@ case $SAFENET_CHOICE in
     CONFIG_URL=https://safe-testnet-tool.s3.eu-west-2.amazonaws.com/public-node_connection_info.config
 
     ;;
-
-
+    
   *)
     echo " Invalid selection, please choose 1-4 to select a testnet"
     ;;
 esac
+
 echo ""
 echo "                    Your node will attempt to connect to "$SAFENET
-echo "" 
-
-
+eho "" 
 echo "                   For some testnets, it will be necessary to allocate a fixed size for your vault."
 echo "                   Again please refer to threads on https://safenetforum.org for details. If no size"
 echo "                   is specified, 5GB will be selected as default."
@@ -128,7 +123,6 @@ GB_ALLOCATED=5
 read -e -i "$GB_ALLOCATED" -p '                   How many GB do you want to allocate to your vault? [5]' GB_ALLOCATED
 VAULT_SIZE=${GB_ALLOCATED}
 echo "                   $VAULT_SIZE" "GB will be allocated for storing chunks"
-
 echo ""
 echo ""
 echo ""
@@ -138,8 +132,6 @@ echo "              Almost all users will be OK with the default port at 12000 "
 echo "              Only change this if you really know what you are doing."
 echo ""
 
-
-
 SAFE_PORT=12000
 read -e -i "$name" -p "              Press Enter to accept the default or edit it here $SAFE_PORT    " input
 SAFE_PORT="${input:-$SAFE_PORT}"
@@ -148,7 +140,6 @@ echo ""
 echo ""
 echo ""
 echo ""
-###########################################################################################################################################################
 
 sleep 2
 
@@ -204,7 +195,6 @@ sleep 3
 
 cargo install vdash
 
-
 ACTIVE_IF=$( ( cd /sys/class/net || exit; echo *)|awk '{print $1;}')
 LOCAL_IP=$(ifdata -pa "$ACTIVE_IF")
 PUBLIC_IP=$(curl -s ifconfig.me)
@@ -215,20 +205,18 @@ SN_CLI_QUERY_TIMEOUT=3600
 
 # Install Safe software and configuration
 
-
-
 #get the CLI
 #curl -so- https://raw.githubusercontent.com/maidsafe/safe_network/master/resources/scripts/install.sh | bash
+#safe node install
 echo ""
 echo ""
 echo ""
-
 
 safe networks add $SAFENET "$CONFIG_URL"
 safe networks switch $SAFENET
 safe networks
 sleep 2
-#safe node install
+
 echo ""
 echo ""
 echo ""
@@ -273,8 +261,6 @@ WantedBy=multi-user.target"\
 
 sudo systemctl start sn_node.service
 #sudo systemctl status sn_node.service
-
-####################################################################################################################################################################
 
 #clear
 echo "_____________________________________________________________________________________________________"
