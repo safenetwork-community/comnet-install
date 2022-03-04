@@ -80,9 +80,10 @@ echo "               1     sjefolaht"
 echo "               2     comnet"
 echo "               3     southsidenet"
 echo "               4     playground"
+echo "               5     dreamnet"
 echo ""
 echo ""
-echo "                                    Please select 1, 2, 3 or 4"
+echo "                                    Please select 1, 2, 3, 4 or 5"
 read SAFENET_CHOICE
 echo ""
 
@@ -107,6 +108,12 @@ case $SAFENET_CHOICE in
     4)
   SAFENET=playground
     CONFIG_URL=https://safe-testnet-tool.s3.eu-west-2.amazonaws.com/public-node_connection_info.config
+
+    ;;
+    
+    5)
+  SAFENET=dreamnet
+    CONFIG_URL=https://nx23255.your-storageshare.de/s/F7e2QaDLNC2z94z/download/dreamnet.config
 
     ;;
 
