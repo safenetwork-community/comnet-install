@@ -114,7 +114,7 @@ esac
 
 echo ""
 echo "                    Your node will attempt to connect to "$SAFENET
-eho "" 
+echo "" 
 echo "                   For some testnets, it will be necessary to allocate a fixed size for your vault."
 echo "                   Again please refer to threads on https://safenetforum.org for details. If no size"
 echo "                   is specified, 5GB will be selected as default."
