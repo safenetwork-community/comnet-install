@@ -11,6 +11,7 @@ All advice and PRs are very welcome.
 
 This script will install everything needed to join the SAFE network testnets for
 Ubuntu like machines. The minimum amount of configuration will be done to get a working solution.
+The script will also install filebeat  https://www.elastic.co/beats/filebeat to allow sending logs to a central ELK server for analysis by maidsafe devs
 
 The following packages will be installed/updated if they do not already exist on the target machine
 
@@ -21,6 +22,7 @@ The following packages will be installed/updated if they do not already exist on
 - build-essential
 - rust
 - vdash
+- filebeat
 
 ### Any existing SAFE installation will be DELETED  ###
 
