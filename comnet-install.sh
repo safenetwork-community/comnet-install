@@ -7,6 +7,8 @@ GB_ALLOCATED=5
 CLI_TIMEOUT=240
 
 COMPILE_FROM_SOURCE=false
+declare -i NODE_NUMBER
+NODE_NUMBER=15
 
 export NEWT_COLORS='
 window=,white
@@ -71,6 +73,8 @@ SAFENET=playground
 CONFIG_URL=https://safe-testnet-tool.s3.eu-west-2.amazonaws.com/public-node_connection_info.config
 fi
 
+
+if [[ "$SAFENET" != "baby-fleming"  ]]; then
 whiptail --title "Node Settings/n" --yesno "Procede with node defaults ?\n
 Port $SAFE_PORT
 Size $GB_ALLOCATED Gb\n\n
@@ -80,6 +84,20 @@ if [[ $? -eq 255 ]]; then
 SAFE_PORT=$(whiptail --title "Custom Port" --inputbox "\nEnter Port Number" 8 40 $SAFE_PORT 3>&1 1>&2 2>&3)
 GB_ALLOCATED=$(whiptail --title "Custom Size" --inputbox "\nEnter Size in GB" 8 40 $GB_ALLOCATED 3>&1 1>&2 2>&3)
 fi 
+fi
+
+if [[ "$SAFENET" == "baby-fleming" ]]; then
+whiptail --title "Node Settings/n" --yesno "Procede with node defaults ?\n
+Size $GB_ALLOCATED Gb
+Number of Nodes $NODE_NUMBER\n\n
+when vdash launches use left and right to cycle through nodes\n\n
+Press Enter to procede or Esc for custom values" 16 70
+
+if [[ $? -eq 255 ]]; then
+NODE_NUMBER=$(whiptail --title "Number of Nodes" --inputbox "\nEnter number of nodes" 8 40 $NODE_NUMBER 3>&1 1>&2 2>&3)
+GB_ALLOCATED=$(whiptail --title "Custom Size" --inputbox "\nEnter Size in GB" 8 40 $GB_ALLOCATED 3>&1 1>&2 2>&3)
+fi
+fi
 
 whiptail --title "Use Git hub release or compile from source" --yesno "\nProcede with release from git hub?\n\n\n
 Press enter to procede or Esc for to compile from source" 16 70
@@ -131,7 +149,35 @@ fi
 
 #start safe network
 if [[ "$SAFENET" == "baby-fleming" ]]; then
-safe node run-baby-fleming
+RUST_LOG=safe_network=trace,qp2p=info \
+	~/.safe/node/sn_node -vv \
+	--max-capacity $VAULT_SIZE \
+	--skip-auto-port-forwarding \
+	--local-addr 127.0.0.1:0 \
+	--first \
+	--root-dir ~/.safe/node/baby-fleming-nodes/sn-node-genesis \
+	--log-dir ~/.safe/node/baby-fleming-nodes/sn-node-genesis 2>&1 > /dev/null & disown
+echo Genesis node started
+sleep 3
+safe networks add baby-fleming ~/.safe/node/node_connection_info.config
+safe networks switch baby-fleming
+NODE_LOGS="$HOME/.safe/node/baby-fleming-nodes/sn-node-genesis/sn_node.log "
+for (( c=1; c<=$NODE_NUMBER; c++ ))
+do
+RUST_LOG=safe_network=trace,qp2p=info \
+        ~/.safe/node/sn_node -vv \
+        --max-capacity $VAULT_SIZE \
+        --skip-auto-port-forwarding \
+        --local-addr 127.0.0.1:0 \
+        --root-dir ~/.safe/node/baby-fleming-nodes/sn-node-$c \
+        --log-dir ~/.safe/node/baby-fleming-nodes/sn-node-$c 2>&1 > /dev/null & disown
+NODE_LOGS="$NODE_LOGS $HOME/.safe/node/baby-fleming-nodes/sn-node-$c/sn_node.log "
+echo Node $c started
+sleep 2
+done
+
+vdash $NODE_LOGS
+
 else
 echo -n "#!/bin/bash
 RUST_LOG=safe_network=trace,qp2p=info \
