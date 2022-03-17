@@ -6,7 +6,7 @@ fi
 GB_ALLOCATED=5
 CLI_TIMEOUT=240
 
-COMPILE_FROM_SOURCE=false
+COMPILE_FROM_SOURCE=1
 declare -i NODE_NUMBER
 NODE_NUMBER=15
 
@@ -32,7 +32,9 @@ The programs lised below will be installed if required. Your root password will 
                                                  by @happybeing\n
 Any existing SAFE installation will be DELETED" 25 70
 
-
+if [[ $? -eq 255 ]]; then
+exit 0
+fi
 
 ############################################## select test net provider
 
@@ -41,11 +43,15 @@ TEST_NET_SELECTION=$(whiptail --title "Testnet Selection" --radiolist \
 "1" "Custom Testnet" OFF \
 "2" "Local Baby Fleming" OFF \
 "3" "Comnet by           @josh" ON \
-"4" "Dreamnet by         @dreamerchris" OFF \
+"4" "Dreamnet by         @dreamerchris     " OFF \
 "5" "Folaht IPv4 by      @folaht" OFF \
 "6" "Folaht IPv6 by      @folaht" OFF \
 "7" "Southnet by         @southside" OFF \
 "8" "Playground official test" OFF 3>&1 1>&2 2>&3)
+
+if [[ $? -eq 255 ]]; then
+exit 0
+fi
 
 if [[ "$TEST_NET_SELECTION" == "1" ]]; then
 SAFENET=Custom
@@ -73,6 +79,7 @@ SAFENET=playground
 CONFIG_URL=https://safe-testnet-tool.s3.eu-west-2.amazonaws.com/public-node_connection_info.config
 fi
 
+############################################## if live testnet set size and port
 
 if [[ "$SAFENET" != "baby-fleming"  ]]; then
 whiptail --title "Node Settings/n" --yesno "Procede with node defaults ?\n
@@ -85,6 +92,8 @@ SAFE_PORT=$(whiptail --title "Custom Port" --inputbox "\nEnter Port Number" 8 40
 GB_ALLOCATED=$(whiptail --title "Custom Size" --inputbox "\nEnter Size in GB" 8 40 $GB_ALLOCATED 3>&1 1>&2 2>&3)
 fi 
 fi
+
+############################################## if local baby fleming set size and node count
 
 if [[ "$SAFENET" == "baby-fleming" ]]; then
 whiptail --title "Node Settings/n" --yesno "Procede with node defaults ?\n
@@ -99,12 +108,18 @@ GB_ALLOCATED=$(whiptail --title "Custom Size" --inputbox "\nEnter Size in GB" 8 
 fi
 fi
 
-whiptail --title "Use Git hub release or compile from source" --yesno "\nProcede with release from git hub?\n\n\n
-Press enter to procede or Esc for to compile from source" 16 70
+############################################## select if use release fro git hub or compile from source
+
+COMPILE_FROM_SOURCE=$(whiptail --title "Binary selection" --radiolist \
+"Testnet providers" 20 70 10 \
+"1" "Latest release from Github     " ON \
+"2" "Compile from Source" OFF 3>&1 1>&2 2>&3)
 
 if [[ $? -eq 255 ]]; then
-COMPILE_FROM_SOURCE=true
+exit 0
 fi
+
+############################################## install dependancys
 
 clear
 sudo apt -qq update
@@ -126,17 +141,17 @@ VAULT_SIZE=$((1024*1024*1024*$GB_ALLOCATED))
 LOG_DIR=$HOME/.safe/node/local_node
 SN_CLI_QUERY_TIMEOUT=$CLI_TIMEOUT
 
-# stop any running nodes and clear out old files
+############################################## stop any running nodes and clear out old files
 safe node killall &> /dev/null
 sudo systemctl stop sn_node.service
 rm -rf "$HOME"/.safe
 
-# install safe network and node
+############################################## install safe network and node
 curl -so- https://raw.githubusercontent.com/maidsafe/safe_network/master/resources/scripts/install.sh | bash
 safe node install
 
-# compile from sourse if selected
-if [[ "$COMPILE_FROM_SOURCE" == "true" ]]; then
+############################################## compile from sourse if selected
+if [[ "$COMPILE_FROM_SOURCE" == "2" ]]; then
 mkdir -p $HOME/.safe/github-tmp
 git clone https://github.com/maidsafe/safe_network.git ~/.safe/github-tmp/
 cd ~/.safe/github-tmp
@@ -147,7 +162,7 @@ rm ~/.safe/node/sn_node
 cp ~/.safe/github-tmp/target/release/sn_node ~/.safe/node/
 fi
 
-#start safe network
+############################################## start safe network local bbay fleming
 if [[ "$SAFENET" == "baby-fleming" ]]; then
 RUST_LOG=safe_network=trace,qp2p=info \
 	~/.safe/node/sn_node -vv \
@@ -177,6 +192,8 @@ sleep 2
 done
 
 vdash $NODE_LOGS
+
+############################################## start safe network live network
 
 else
 echo -n "#!/bin/bash
