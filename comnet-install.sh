@@ -142,7 +142,7 @@ PUBLIC_IP=$(echo $(curl -s ifconfig.me))
 SAFE_PORT=$SAFE_PORT
 VAULT_SIZE=$((1024*1024*1024*$GB_ALLOCATED))
 LOG_DIR=$HOME/.safe/node/local_node
-SN_CLI_QUERY_TIMEOUT=$CLI_TIMEOUT
+export SN_CLI_QUERY_TIMEOUT=$CLI_TIMEOUT
 
 ############################################## stop any running nodes and clear out old files
 safe node killall &> /dev/null
