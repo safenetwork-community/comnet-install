@@ -156,39 +156,39 @@ safe node install
 ############################################## compile from sourse if selected
 if [[ "$COMPILE_FROM_SOURCE" == "2" ]]; then
 mkdir -p $HOME/.safe/github-tmp
-git clone https://github.com/maidsafe/safe_network.git ~/.safe/github-tmp/
-cd ~/.safe/github-tmp
+git clone https://github.com/maidsafe/safe_network.git $HOME/.safe/github-tmp/
+cd $HOME/.safe/github-tmp
 cargo build --release
-rm ~/.safe/cli/safe
-cp ~/.safe/github-tmp/target/release/safe ~/.safe/cli/
-rm ~/.safe/node/sn_node
-cp ~/.safe/github-tmp/target/release/sn_node ~/.safe/node/
+rm $HOME/.safe/cli/safe
+cp $HOME/.safe/github-tmp/target/release/safe $HOME/.safe/cli/
+rm $HOME/.safe/node/sn_node
+cp $HOME/.safe/github-tmp/target/release/sn_node $HOME/.safe/node/
 fi
 
 ############################################## start safe network local bbay fleming
 if [[ "$SAFENET" == "baby-fleming" ]]; then
 RUST_LOG=safe_network=trace,qp2p=info \
-	~/.safe/node/sn_node -vv \
+	$HOME/.safe/node/sn_node -vv \
 	--max-capacity $VAULT_SIZE \
 	--skip-auto-port-forwarding \
 	--local-addr 127.0.0.1:0 \
 	--first \
-	--root-dir ~/.safe/node/baby-fleming-nodes/sn-node-genesis \
-	--log-dir ~/.safe/node/baby-fleming-nodes/sn-node-genesis 2>&1 > /dev/null & disown
+	--root-dir $HOME/.safe/node/baby-fleming-nodes/sn-node-genesis \
+	--log-dir $HOME/.safe/node/baby-fleming-nodes/sn-node-genesis 2>&1 > /dev/null & disown
 echo Genesis node started
 sleep 3
-safe networks add baby-fleming ~/.safe/node/node_connection_info.config
+safe networks add baby-fleming $HOME/.safe/node/node_connection_info.config
 safe networks switch baby-fleming
 NODE_LOGS="$HOME/.safe/node/baby-fleming-nodes/sn-node-genesis/sn_node.log "
 for (( c=1; c<=$NODE_NUMBER; c++ ))
 do
 RUST_LOG=safe_network=trace,qp2p=info \
-        ~/.safe/node/sn_node -vv \
+        $HOME/.safe/node/sn_node -vv \
         --max-capacity $VAULT_SIZE \
         --skip-auto-port-forwarding \
         --local-addr 127.0.0.1:0 \
-        --root-dir ~/.safe/node/baby-fleming-nodes/sn-node-$c \
-        --log-dir ~/.safe/node/baby-fleming-nodes/sn-node-$c 2>&1 > /dev/null & disown
+        --root-dir $HOME/.safe/node/baby-fleming-nodes/sn-node-$c \
+        --log-dir $HOME/.safe/node/baby-fleming-nodes/sn-node-$c 2>&1 > /dev/null & disown
 NODE_LOGS="$NODE_LOGS $HOME/.safe/node/baby-fleming-nodes/sn-node-$c/sn_node.log "
 echo Node $c started
 sleep 2
@@ -207,15 +207,15 @@ sleep 2
 
 echo -n "#!/bin/bash
 RUST_LOG=safe_network=trace,qp2p=info \
-	~/.safe/node/sn_node \
+	$HOME/.safe/node/sn_node \
 	--max-capacity $VAULT_SIZE \
 	--local-addr "$LOCAL_IP":$SAFE_PORT \
 	--public-addr "$PUBLIC_IP":$SAFE_PORT \
 	--skip-auto-port-forwarding \
 	--log-dir "$LOG_DIR" & disown"\
-| tee ~/.safe/node/start-node.sh &> /dev/null
+| tee $HOME/.safe/node/start-node.sh &> /dev/null
 
-chmod u+x ~/.safe/node/start-node.sh
+chmod u+x $HOME/.safe/node/start-node.sh
 
 echo -n "[Unit]
 Description=Safe Node
@@ -231,5 +231,5 @@ sudo systemctl start sn_node.service
 
 sleep 3
 
-vdash "$LOG_DIR"/sn_node.log
+vdash $LOG_DIR/sn_node.log
 fi
