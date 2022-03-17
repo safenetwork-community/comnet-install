@@ -52,6 +52,9 @@ TEST_NET_SELECTION=$(whiptail --title "Testnet Selection" --radiolist \
 if [[ $? -eq 255 ]]; then
 exit 0
 fi
+if [[ $? -eq 255 ]]; then
+exit 0
+fi
 
 if [[ "$TEST_NET_SELECTION" == "1" ]]; then
 SAFENET=Custom
@@ -196,6 +199,12 @@ vdash $NODE_LOGS
 ############################################## start safe network live network
 
 else
+
+sleep 2
+safe networks add $SAFENET $CONFIG_URL
+safe networks switch $SAFENET
+sleep 2
+
 echo -n "#!/bin/bash
 RUST_LOG=safe_network=trace,qp2p=info \
 	~/.safe/node/sn_node \
