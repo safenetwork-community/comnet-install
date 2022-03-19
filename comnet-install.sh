@@ -7,8 +7,11 @@ GB_ALLOCATED=5
 CLI_TIMEOUT=240
 
 COMPILE_FROM_SOURCE=1
+
 declare -i NODE_NUMBER
 NODE_NUMBER=15
+
+LOCAL_NODE=0
 
 export NEWT_COLORS='
 window=,white
@@ -82,8 +85,22 @@ SAFENET=playground
 CONFIG_URL=https://safe-testnet-tool.s3.eu-west-2.amazonaws.com/public-node_connection_info.config
 fi
 
+############################################## select if node should be started
+
+if [[ $SAFENET != "baby-fleming"  ]]; then
+LOCAL_NODE=$(whiptail --title "Local Node" --radiolist \
+"Testnet providers" 20 70 10 \
+"1" "Dont start Local node     " ON \
+"2" "Start local node" OFF 3>&1 1>&2 2>&3)
+
+if [[ $? -eq 255 ]]; then
+exit 0
+fi
+fi
+
 ############################################## if live testnet set size and port
 
+if [[ $LOCAL_NODE == "2" ]]; then
 if [[ "$SAFENET" != "baby-fleming"  ]]; then
 whiptail --title "Node Settings/n" --yesno "Procede with node defaults ?\n
 Port $SAFE_PORT
@@ -94,6 +111,7 @@ if [[ $? -eq 255 ]]; then
 SAFE_PORT=$(whiptail --title "Custom Port" --inputbox "\nEnter Port Number" 8 40 $SAFE_PORT 3>&1 1>&2 2>&3)
 GB_ALLOCATED=$(whiptail --title "Custom Size" --inputbox "\nEnter Size in GB" 8 40 $GB_ALLOCATED 3>&1 1>&2 2>&3)
 fi 
+fi
 fi
 
 ############################################## if local baby fleming set size and node count
@@ -111,7 +129,7 @@ GB_ALLOCATED=$(whiptail --title "Custom Size" --inputbox "\nEnter Size in GB" 8 
 fi
 fi
 
-############################################## select if use release fro git hub or compile from source
+############################################## select if use release from git hub or compile from source
 
 COMPILE_FROM_SOURCE=$(whiptail --title "Binary selection" --radiolist \
 "Testnet providers" 20 70 10 \
@@ -165,8 +183,19 @@ rm $HOME/.safe/node/sn_node
 cp $HOME/.safe/github-tmp/target/release/sn_node $HOME/.safe/node/
 fi
 
-############################################## start safe network local bbay fleming
-if [[ "$SAFENET" == "baby-fleming" ]]; then
+############################################## start safe network without local node
+
+if [[ $LOCAL_NODE == 1 ]]; then
+
+sleep 1
+safe networks add $SAFENET $CONFIG_URL
+sleep 1
+safe networks switch $SAFENET
+sleep 1
+
+############################################## start safe network local babay fleming
+
+elif [[ "$SAFENET" == "baby-fleming" ]]; then
 RUST_LOG=safe_network=trace,qp2p=info \
 	$HOME/.safe/node/sn_node -vv \
 	--max-capacity $VAULT_SIZE \
@@ -176,10 +205,15 @@ RUST_LOG=safe_network=trace,qp2p=info \
 	--root-dir $HOME/.safe/node/baby-fleming-nodes/sn-node-genesis \
 	--log-dir $HOME/.safe/node/baby-fleming-nodes/sn-node-genesis 2>&1 > /dev/null & disown
 echo Genesis node started
+
 sleep 3
 safe networks add baby-fleming $HOME/.safe/node/node_connection_info.config
+sleep 1
 safe networks switch baby-fleming
+sleep 1
+
 NODE_LOGS="$HOME/.safe/node/baby-fleming-nodes/sn-node-genesis/sn_node.log "
+
 for (( c=1; c<=$NODE_NUMBER; c++ ))
 do
 RUST_LOG=safe_network=trace,qp2p=info \
@@ -191,7 +225,7 @@ RUST_LOG=safe_network=trace,qp2p=info \
         --log-dir $HOME/.safe/node/baby-fleming-nodes/sn-node-$c 2>&1 > /dev/null & disown
 NODE_LOGS="$NODE_LOGS $HOME/.safe/node/baby-fleming-nodes/sn-node-$c/sn_node.log "
 echo Node $c started
-sleep 2
+sleep 3
 done
 
 vdash $NODE_LOGS
@@ -200,10 +234,11 @@ vdash $NODE_LOGS
 
 else
 
-sleep 2
+sleep 1
 safe networks add $SAFENET $CONFIG_URL
+sleep 1
 safe networks switch $SAFENET
-sleep 2
+sleep 1
 
 echo -n "#!/bin/bash
 RUST_LOG=safe_network=trace,qp2p=info \
