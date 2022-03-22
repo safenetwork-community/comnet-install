@@ -152,7 +152,11 @@ curl https://sh.rustup.rs -sSf | sh -s -- -y
 sudo apt -qq install cargo -y
 cargo install vdash
 
-PATH=$PATH:/$HOME/.safe/cli:$HOME/.cargo/bin 
+
+PATH=$PATH:/$HOME/.safe/cli:$HOME/.cargo/bin
+source $HOME/.profile
+
+. "$HOME/.cargo/env"
 
 ACTIVE_IF=$( ( cd /sys/class/net || exit; echo *)|awk '{print $1;}')
 LOCAL_IP=$(echo $(ifdata -pa "$ACTIVE_IF"))
@@ -212,7 +216,7 @@ sleep 1
 safe networks switch baby-fleming
 sleep 1
 
-NODE_LOGS="$HOME/.safe/node/baby-fleming-nodes/sn-node-genesis/sn_node.log "
+LOG_FILES="$HOME/.safe/node/baby-fleming-nodes/sn-node-genesis/sn_node.log "
 
 for (( c=1; c<=$NODE_NUMBER; c++ ))
 do
@@ -223,14 +227,12 @@ RUST_LOG=safe_network=trace,qp2p=info \
         --local-addr 127.0.0.1:0 \
         --root-dir $HOME/.safe/node/baby-fleming-nodes/sn-node-$c \
         --log-dir $HOME/.safe/node/baby-fleming-nodes/sn-node-$c 2>&1 > /dev/null & disown
-NODE_LOGS="$NODE_LOGS $HOME/.safe/node/baby-fleming-nodes/sn-node-$c/sn_node.log "
+export LOG_FILES="$LOG_FILES $HOME/.safe/node/baby-fleming-nodes/sn-node-$c/sn_node.log "
 echo Node $c started
 sleep 3
 done
 
-vdash $NODE_LOGS
-
-############################################## start safe network live network
+############################################## start safe network with node live network
 
 else
 
@@ -264,7 +266,18 @@ WantedBy=multi-user.target"\
 
 sudo systemctl start sn_node.service
 
+export LOG_FILES=$LOG_DIR/sn_node.log
+
 sleep 3
 
-vdash $LOG_DIR/sn_node.log
 fi
+
+
+# make script to start vdash with relavant log files
+echo -n "#!/bin/bash
+vdash $LOG_FILES" \
+| tee $HOME/.cargo/bin/vdash.sh &> /dev/null
+
+chmod u+x $HOME/.cargo/bin/vdash.sh
+
+vdash.sh
