@@ -19,8 +19,16 @@ border=black,white
 textbox=black,white
 button=black,white
 '
+PATH=$PATH:/$HOME/.safe/cli:/$HOME/.cargo/bin:/$HOME/.cargo
 
-############################################## welcome message
+####################################################### first time the sript is run install dependancys and exit so as to update env
+if [ -e $HOME/.cargo/bin/installed ]
+then
+    echo "script previously run"
+
+else
+
+########## welcome message
 whiptail --title "********************** SAFE NODE INSTALLER  *****************************************" --msgbox "\n
 This script will install everything needed to join the SAFE network testnets for Ubuntu like machines\n
 The programs lised below will be installed if required. Your root password will be required.\n
@@ -37,6 +45,8 @@ Any existing SAFE installation will be DELETED" 25 70
 
 if [[ $? -eq 255 ]]; then
 exit 0
+fi
+
 fi
 
 ############################################## select test net provider
@@ -140,7 +150,23 @@ if [[ $? -eq 255 ]]; then
 exit 0
 fi
 
-############################################## install dependancys
+############################################## set up variables
+
+ACTIVE_IF=$( ( cd /sys/class/net || exit; echo *)|awk '{print $1;}')
+LOCAL_IP=$(echo $(ifdata -pa "$ACTIVE_IF"))
+PUBLIC_IP=$(echo $(curl -s ifconfig.me))
+SAFE_PORT=$SAFE_PORT
+VAULT_SIZE=$((1024*1024*1024*$GB_ALLOCATED))
+LOG_DIR=$HOME/.safe/node/local_node
+export SN_CLI_QUERY_TIMEOUT=$CLI_TIMEOUT
+
+############################################## install dependancys and rust if this is first time script has been run
+
+if [ -e $HOME/.cargo/bin/installed ]
+then
+    echo "script previously run"
+
+else
 
 clear
 sudo apt -qq update
@@ -150,21 +176,11 @@ sudo apt -qq install git -y
 sudo snap remove rustup
 curl https://sh.rustup.rs -sSf | sh -s -- -y
 sudo apt -qq install cargo -y
-cargo install vdash
+clear
 
+touch $HOME/.cargo/bin/installed
 
-PATH=$PATH:/$HOME/.safe/cli:$HOME/.cargo/bin
-source $HOME/.profile
-
-. "$HOME/.cargo/env"
-
-ACTIVE_IF=$( ( cd /sys/class/net || exit; echo *)|awk '{print $1;}')
-LOCAL_IP=$(echo $(ifdata -pa "$ACTIVE_IF"))
-PUBLIC_IP=$(echo $(curl -s ifconfig.me))
-SAFE_PORT=$SAFE_PORT
-VAULT_SIZE=$((1024*1024*1024*$GB_ALLOCATED))
-LOG_DIR=$HOME/.safe/node/local_node
-export SN_CLI_QUERY_TIMEOUT=$CLI_TIMEOUT
+fi
 
 ############################################## stop any running nodes and clear out old files
 safe node killall &> /dev/null
@@ -175,11 +191,15 @@ rm -rf "$HOME"/.safe
 curl -so- https://raw.githubusercontent.com/maidsafe/safe_network/master/resources/scripts/install.sh | bash
 safe node install
 
+rustup update
+cargo install vdash
 ############################################## compile from sourse if selected
 if [[ "$COMPILE_FROM_SOURCE" == "2" ]]; then
+
 mkdir -p $HOME/.safe/github-tmp
 git clone https://github.com/maidsafe/safe_network.git $HOME/.safe/github-tmp/
 cd $HOME/.safe/github-tmp
+source $HOME/.cargo/env
 cargo build --release
 rm $HOME/.safe/cli/safe
 cp $HOME/.safe/github-tmp/target/release/safe $HOME/.safe/cli/
