@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-if [[ SAFE_PORT == "" ]]; then
+if [[ $SAFE_PORT == "" ]]; then
 SAFE_PORT=1200
 fi
 GB_ALLOCATED=5
