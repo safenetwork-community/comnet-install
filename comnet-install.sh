@@ -188,7 +188,7 @@ sudo systemctl stop sn_node.service
 rm -rf "$HOME"/.safe
 
 ############################################## install safe network and node
-curl -so- https://raw.githubusercontent.com/maidsafe/safe_network/master/resources/scripts/install.sh | bash
+curl -so- https://raw.githubusercontent.com/maidsafe/safe_network/main/resources/scripts/install.sh | bash
 safe node install
 
 rustup update
@@ -197,6 +197,7 @@ cargo install vdash
 if [[ "$COMPILE_FROM_SOURCE" == "2" ]]; then
 
 mkdir -p $HOME/.safe/github-tmp
+mkdir -p $HOME/.safe/node
 git clone https://github.com/maidsafe/safe_network.git $HOME/.safe/github-tmp/
 cd $HOME/.safe/github-tmp
 source $HOME/.cargo/env
@@ -292,6 +293,8 @@ sleep 3
 
 fi
 
+# generate keys for cli
+safe keys create --for-cli
 
 # make script to start vdash with relavant log files
 echo -n "#!/bin/bash
