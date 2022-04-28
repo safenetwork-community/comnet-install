@@ -223,7 +223,7 @@ sleep 1
 elif [[ "$SAFENET" == "baby-fleming" ]]; then
 RUST_LOG=sn_node=trace,qp2p=info \
 	$HOME/.safe/node/sn_node -vv \
-#	--max-capacity $VAULT_SIZE \
+	--max-capacity $VAULT_SIZE \
 	--skip-auto-port-forwarding \
 	--local-addr 127.0.0.1:0 \
 	--first \
@@ -243,7 +243,7 @@ for (( c=1; c<=$NODE_NUMBER; c++ ))
 do
 RUST_LOG=sn_node=trace,qp2p=info \
         $HOME/.safe/node/sn_node -vv \
-#        --max-capacity $VAULT_SIZE \
+        --max-capacity $VAULT_SIZE \
         --skip-auto-port-forwarding \
         --local-addr 127.0.0.1:0 \
         --root-dir $HOME/.safe/node/baby-fleming-nodes/sn-node-$c \
