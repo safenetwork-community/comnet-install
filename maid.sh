@@ -77,7 +77,7 @@ SAFENET=baby-fleming
 CONFIG_URL=n/a
 elif [[ "$TEST_NET_SELECTION" == "3" ]]; then
 SAFENET=comnet
-CONFIG_URL=https://sn-comnet.s3.eu-west-2.amazonaws.com/node_connection_info.config
+CONFIG_URL=https://sn-comnet.s3.eu-west-2.amazonaws.com/comnet-node_connection_info.config
 elif [[ "$TEST_NET_SELECTION" == "4" ]]; then
 SAFENET=dreamnet
 CONFIG_URL=https://nx23255.your-storageshare.de/s/F7e2QaDLNC2z94z/download/dreamnet.config
@@ -221,9 +221,9 @@ sleep 1
 ############################################## start safe network local babay fleming
 
 elif [[ "$SAFENET" == "baby-fleming" ]]; then
-RUST_LOG=safe_network=trace,qp2p=info \
+RUST_LOG=sn_node=trace,qp2p=info \
 	$HOME/.safe/node/sn_node -vv \
-	--max-capacity $VAULT_SIZE \
+#	--max-capacity $VAULT_SIZE \
 	--skip-auto-port-forwarding \
 	--local-addr 127.0.0.1:0 \
 	--first \
@@ -241,9 +241,9 @@ LOG_FILES="$HOME/.safe/node/baby-fleming-nodes/sn-node-genesis/sn_node.log "
 
 for (( c=1; c<=$NODE_NUMBER; c++ ))
 do
-RUST_LOG=safe_network=trace,qp2p=info \
+RUST_LOG=sn_node=trace,qp2p=info \
         $HOME/.safe/node/sn_node -vv \
-        --max-capacity $VAULT_SIZE \
+#        --max-capacity $VAULT_SIZE \
         --skip-auto-port-forwarding \
         --local-addr 127.0.0.1:0 \
         --root-dir $HOME/.safe/node/baby-fleming-nodes/sn-node-$c \
@@ -264,7 +264,7 @@ safe networks switch $SAFENET
 sleep 1
 
 echo -n "#!/bin/bash
-RUST_LOG=safe_network=trace,qp2p=info \
+RUST_LOG=sn_node=trace,qp2p=info \
 	$HOME/.safe/node/sn_node \
 	--max-capacity $VAULT_SIZE \
 	--local-addr "$LOCAL_IP":$SAFE_PORT \
