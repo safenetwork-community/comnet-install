@@ -4,7 +4,7 @@ if [[ $SAFE_PORT == "" ]]; then
 SAFE_PORT=1200
 fi
 GB_ALLOCATED=5
-CLI_TIMEOUT=240
+CLI_TIMEOUT=500
 
 COMPILE_FROM_SOURCE=1
 
@@ -198,6 +198,7 @@ if [[ "$COMPILE_FROM_SOURCE" == "2" ]]; then
 
 mkdir -p $HOME/.safe/github-tmp
 mkdir -p $HOME/.safe/node
+#git clone https://github.com/maidsafe/safe_network.git $HOME/.safe/github-tmp/
 git clone https://github.com/maidsafe/safe_network.git $HOME/.safe/github-tmp/
 cd $HOME/.safe/github-tmp
 source $HOME/.cargo/env
