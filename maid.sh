@@ -209,7 +209,6 @@ cp $HOME/.safe/github-tmp/target/release/sn_node $HOME/.safe/node/
 fi
 
 ############################################## start safe network without local node
-
 if [[ $LOCAL_NODE == 1 ]]; then
 
 sleep 1
@@ -217,13 +216,15 @@ safe networks add $SAFENET $CONFIG_URL
 sleep 1
 safe networks switch $SAFENET
 sleep 1
-
+6
 ############################################## start safe network local babay fleming
 
 elif [[ "$SAFENET" == "baby-fleming" ]]; then
+
+mkdir -p $HOME/.safe/node/baby-fleming-nodes
+
 RUST_LOG=sn_node=trace,qp2p=info \
 	$HOME/.safe/node/sn_node -vv \
-	--max-capacity $VAULT_SIZE \
 	--skip-auto-port-forwarding \
 	--local-addr 127.0.0.1:0 \
 	--first \
@@ -243,7 +244,6 @@ for (( c=1; c<=$NODE_NUMBER; c++ ))
 do
 RUST_LOG=sn_node=trace,qp2p=info \
         $HOME/.safe/node/sn_node -vv \
-        --max-capacity $VAULT_SIZE \
         --skip-auto-port-forwarding \
         --local-addr 127.0.0.1:0 \
         --root-dir $HOME/.safe/node/baby-fleming-nodes/sn-node-$c \
@@ -266,7 +266,6 @@ sleep 1
 echo -n "#!/bin/bash
 RUST_LOG=sn_node=trace,qp2p=info \
 	$HOME/.safe/node/sn_node \
-	--max-capacity $VAULT_SIZE \
 	--local-addr "$LOCAL_IP":$SAFE_PORT \
 	--public-addr "$PUBLIC_IP":$SAFE_PORT \
 	--skip-auto-port-forwarding \
