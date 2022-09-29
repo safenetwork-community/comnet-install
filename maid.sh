@@ -77,10 +77,10 @@ SAFENET=baby-fleming
 CONFIG_URL=n/a
 elif [[ "$TEST_NET_SELECTION" == "3" ]]; then
 SAFENET=comnet
-CONFIG_URL=https://sn-comnet.s3.eu-west-2.amazonaws.com/comnet-node_connection_info.config
+CONFIG_URL=https://sn-comnet.s3.eu-west-2.amazonaws.com/comnet-network-contacts
 elif [[ "$TEST_NET_SELECTION" == "4" ]]; then
 SAFENET=dreamnet
-CONFIG_URL=https://nx23255.your-storageshare.de/s/F7e2QaDLNC2z94z/download/dreamnet.config
+CONFIG_URL=https://nx27631.your-storageshare.de/s/E34nMeqKg2eWnBS/download/section_tree
 elif [[ "$TEST_NET_SELECTION" == "5" ]]; then
 SAFENET=folaht-ipv4
 CONFIG_URL=https://link.tardigradeshare.io/s/julx763rsy2egbnj2nixoahpobgq/rezosur/koqfig/sjefolaht_ipv4_node_connection_info.config?wrap=0
@@ -198,8 +198,9 @@ if [[ "$COMPILE_FROM_SOURCE" == "2" ]]; then
 
 mkdir -p $HOME/.safe/github-tmp
 mkdir -p $HOME/.safe/node
-#git clone https://github.com/maidsafe/safe_network.git $HOME/.safe/github-tmp/
 git clone https://github.com/maidsafe/safe_network.git $HOME/.safe/github-tmp/
+#git clone --branch Handover https://github.com/maidsafe/safe_network $HOME/.safe/github-tmp/
+
 cd $HOME/.safe/github-tmp
 source $HOME/.cargo/env
 cargo build --release
@@ -224,17 +225,18 @@ elif [[ "$SAFENET" == "baby-fleming" ]]; then
 
 mkdir -p $HOME/.safe/node/baby-fleming-nodes
 
-RUST_LOG=sn_node=trace,qp2p=info \
-	$HOME/.safe/node/sn_node -vv \
-	--skip-auto-port-forwarding \
-	--local-addr 127.0.0.1:0 \
-	--first \
-	--root-dir $HOME/.safe/node/baby-fleming-nodes/sn-node-genesis \
-	--log-dir $HOME/.safe/node/baby-fleming-nodes/sn-node-genesis 2>&1 > /dev/null & disown
+RUST_LOG=sn_node=trace,qp2p=info\
+ nohup $HOME/.safe/node/sn_node -vv\
+ --skip-auto-port-forwarding\
+ --local-addr 127.0.0.1:0\
+ --first\
+ --root-dir $HOME/.safe/node/baby-fleming-nodes/sn-node-genesis\
+ --log-dir $HOME/.safe/node/baby-fleming-nodes/sn-node-genesis 2>&1 > /dev/null & disown
+
 echo Genesis node started
 
-sleep 3
-safe networks add baby-fleming $HOME/.safe/node/node_connection_info.config
+sleep 10
+safe networks add baby-fleming $HOME/.safe/node/baby-fleming-nodes/sn-node-genesis/section_tree
 sleep 1
 safe networks switch baby-fleming
 sleep 1
@@ -243,15 +245,18 @@ LOG_FILES="$HOME/.safe/node/baby-fleming-nodes/sn-node-genesis/sn_node.log "
 
 for (( c=1; c<=$NODE_NUMBER; c++ ))
 do
-RUST_LOG=sn_node=trace,qp2p=info \
-        $HOME/.safe/node/sn_node -vv \
-        --skip-auto-port-forwarding \
-        --local-addr 127.0.0.1:0 \
-        --root-dir $HOME/.safe/node/baby-fleming-nodes/sn-node-$c \
-        --log-dir $HOME/.safe/node/baby-fleming-nodes/sn-node-$c 2>&1 > /dev/null & disown
+
+RUST_LOG=sn_node=trace,qp2p=info\
+ nohup $HOME/.safe/node/sn_node -vv \
+ --skip-auto-port-forwarding \
+ --local-addr 127.0.0.1:0 \
+ --root-dir $HOME/.safe/node/baby-fleming-nodes/sn-node-$c \
+ --log-dir $HOME/.safe/node/baby-fleming-nodes/sn-node-$c \
+ --network-contacts-file $HOME/.safe/network_contacts/default 2>&1 > /dev/null & disown
+
 export LOG_FILES="$LOG_FILES $HOME/.safe/node/baby-fleming-nodes/sn-node-$c/sn_node.log "
 echo Node $c started
-sleep 3
+sleep 10
 done
 
 ############################################## start safe network with node live network
@@ -259,18 +264,22 @@ done
 else
 
 sleep 1
-safe networks add $SAFENET $CONFIG_URL
+wget $CONFIG_URL -O $HOME/.safe/$SAFENET
+safe networks add $SAFENET $HOME/.safe/$SAFENET
 sleep 1
 safe networks switch $SAFENET
-sleep 1
+sleep 5
+
+#RUST_LOG=sn_node=trace,qp2p=info \
 
 echo -n "#!/bin/bash
-RUST_LOG=sn_node=trace,qp2p=info \
+
 	$HOME/.safe/node/sn_node \
 	--local-addr "$LOCAL_IP":$SAFE_PORT \
 	--public-addr "$PUBLIC_IP":$SAFE_PORT \
 	--skip-auto-port-forwarding \
-	--log-dir "$LOG_DIR" & disown"\
+	--log-dir "$LOG_DIR" \
+	--network-contacts-file "$HOME/.safe/$SAFENET" & disown" \
 | tee $HOME/.safe/node/start-node.sh &> /dev/null
 
 chmod u+x $HOME/.safe/node/start-node.sh
@@ -295,6 +304,7 @@ fi
 
 # generate keys for cli
 safe keys create --for-cli
+
 
 # make script to start vdash with relavant log files
 echo -n "#!/bin/bash
