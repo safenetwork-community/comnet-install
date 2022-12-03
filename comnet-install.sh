@@ -200,18 +200,12 @@ cd $TMP_GH_DIR
 
 git pull       # COMMENT THIS OUT BEFORE RELEASE
 
-
-
-
-
-
-# add options for --features flags
+# ===================   add options for --features flags
 #$BUILD_CMD="cargo build --release"
 
-#$BUILD_CMD
+#=============================================================
 
 cargo build --release
-
 
 #install the latest binaries
 cp $TMP_GH_DIR/target/release/safe ~/.safe/cli/
@@ -221,12 +215,13 @@ echo $(safe node bin-version) "Node install complete"
 sleep 2
 
 tree  $HOME/.safe
-sleep 3
 
 # cargo install vdash
 
 SAFENET=comnet
-CONFIG_URL=https://sn-comnet.s3.eu-west-2.amazonaws.com/node_connection_info.config
+#CONFIG_URL=https://sn-comnet.s3.eu-west-2.amazonaws.com/node_connection_info.config
+
+CONFIG_URL=https://sn-comnet.s3.eu-west-2.amazonaws.com/comnet-network-contacts
 
 ACTIVE_IF=$( ( cd /sys/class/net || exit; echo *)|awk '{print $1;}')
 LOCAL_IP=$(ifdata -pa "$ACTIVE_IF")
