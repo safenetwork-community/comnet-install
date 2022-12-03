@@ -63,6 +63,9 @@ read -r input
 
 if [[ $input == "Y" || $input == "y" ]]; then
         echo "                            OK then, let's go."
+        echo ""
+        echo ""
+        echo ""
 else
        echo "Bye now..."     
        exit
