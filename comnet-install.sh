@@ -66,6 +66,8 @@ else
        exit
 fi
 
+: <<'EOF'
+
 echo "           Which testnet do you want to connect to?"
 
 echo ""
@@ -127,6 +129,9 @@ echo ""
 echo ""
 echo ""
 echo ""
+
+EOF
+
 echo "              Certain setups may require the default SAFE port to be changed"
 echo "              Almost all users will be OK with the default port at 12000 "
 echo "              Only change this if you really know what you are doing."
@@ -159,7 +164,7 @@ echo ""
 echo "                           Please ignore warning about apt"
 echo ""
 
-TMP_GH_DIR=$HOME/github-tmp
+TMP_GH_DIR=$HOME/safe_github_tmp
 
 rm -rf "$HOME"/.safe # clear out any old files
 
@@ -182,8 +187,15 @@ mkdir -p \
 PATH=$PATH:/$HOME/.safe/cli:$HOME/.cargo/bin   
 
 git clone https://github.com/maidsafe/safe_network.git $TMP_GH_DIR
-cd ~/github-tmp
+cd $TMP_GH_DIR
+
+# add options for --features flags
+
 cargo build --release
+
+
+
+
 cp $TMP_GH_DIR/target/release/safe ~/.safe/cli/
 cp $TMP_GH_DIR/target/release/sn_node ~/.safe/node/
 echo $(safe --version) "CLI install complete"
