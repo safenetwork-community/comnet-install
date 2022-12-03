@@ -41,9 +41,9 @@ echo " - sn_cli                 -the SAFE client program  "
 echo " - safe_network           -the SAFE network functionality "
 echo " - moreutils              -helper programs to assist in idenntifying your network settins"
 echo " - tree                   -needed to show the ~/.safe directory structure"
-echo " - build-essential        -required to build vdash on top of rust "
+#echo " - build-essential        -required to build vdash on top of rust "
 echo " - rust                   -Rust is a systems programming lanuage   "
-echo " - vdash                  -vdash is a Rust program by @happybeing to monitor your SAFE node  "
+#echo " - vdash                  -vdash is a Rust program by @happybeing to monitor your SAFE node  "
 echo ""
 echo ""
 echo ""
@@ -52,8 +52,8 @@ echo ""
 echo ""
 echo ""
 echo ""
-echo "             Once everything is installed, your node will connect to the chosen testnet and vdash will be"
-echo "                             configured to display network and node information"
+echo "             Once everything is installed, your node will connect to the selected testnet" #and vdash will be"
+#echo "                             configured to display network and node information"
 echo ""
 echo ""
 echo "                If you are happy with the above and have read the Readme, type 'y' to proceed [y,N]"
@@ -193,7 +193,7 @@ sleep 2
 tree  $HOME/.safe
 sleep 3
 
-cargo install vdash
+# cargo install vdash
 
 ACTIVE_IF=$( ( cd /sys/class/net || exit; echo *)|awk '{print $1;}')
 LOCAL_IP=$(ifdata -pa "$ACTIVE_IF")
@@ -263,6 +263,7 @@ sudo systemctl start sn_node.service
 #sudo systemctl status sn_node.service
 
 #clear
+: <<'EOF'
 echo "_____________________________________________________________________________________________________"
 echo ""
 echo "                    Now cofiguring vdash from @happybeing"
@@ -285,3 +286,4 @@ sleep 3
 # Install or update vdash
 
 vdash "$LOG_DIR"/sn_node.log
+EOF
