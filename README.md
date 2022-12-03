@@ -18,6 +18,7 @@ The following packages will be installed/updated if they do not already exist on
 - sn_cli
 - safe_network
 - moreutils
+- tree
 - build-essential
 - rust
 - vdash

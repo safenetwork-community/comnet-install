@@ -24,10 +24,6 @@ ColorRed(){
 	echo -  $red$1$clear
 }
 
-
-
-
-
 clear
 echo  "********************** SAFE NODE INSTALLER  *****************************************"
 echo ""
@@ -35,28 +31,31 @@ echo ""
 echo ""
 echo ""
 echo  "    This script will install everything needed to join the SAFE network testnets for "
-echo  "    Ubuntu like machines"
-echo  "    The programs lised below will be installed if required. Your root password will be required."
+echo  "    Debian-based distros"
 echo ""
+echo ""
+echo ""
+echo  "    The programs listed below will be installed. You will need the root password."
 echo ""
 echo " - snap                   -assists in installin the dependencies"
 echo " - curl                   -fetches the SAFE applications"
 echo " - sn_cli                 -the SAFE client program  "
 echo " - safe_network           -the SAFE network functionality "
 echo " - moreutils              -helper programs to assist in idenntifying your network settins"
-echo " - build-essential        -required to build vdash on top of rust "
+echo " - tree                   -needed to show the ~/.safe directory structure"
+#echo " - build-essential        -required to build vdash on top of rust "
 echo " - rust                   -Rust is a systems programming lanuage   "
-echo " - vdash                  -vdash is a Rust program by @happybeing to monitor your SAFE node  "
+#echo " - vdash                  -vdash is a Rust program by @happybeing to monitor your SAFE node  "
 echo ""
 echo ""
 echo ""
-echo -ne $(ColorRed " ################# Any existing SAFE installation will be DELETED ##################")
+echo -ne $(ColorRed "         ################# Any existing SAFE installation will be DELETED ##################")
 echo ""
 echo ""
 echo ""
 echo ""
-echo "             Once everything is installed, your node will connect to the chosen testnet and vdash will be"
-echo "                             configured to display network and node information"
+echo "             Once everything is installed, your node will connect to the selected testnet" #and vdash will be"
+#echo "                             configured to display network and node information"
 echo ""
 echo ""
 echo "                If you are happy with the above and have read the Readme, type 'y' to proceed [y,N]"
@@ -64,10 +63,15 @@ read -r input
 
 if [[ $input == "Y" || $input == "y" ]]; then
         echo "                            OK then, let's go."
+        echo ""
+        echo ""
+        echo ""
 else
        echo "Bye now..."     
        exit
 fi
+
+: <<'EOF'
 
 echo "           Which testnet do you want to connect to?"
 
@@ -109,17 +113,15 @@ case $SAFENET_CHOICE in
     CONFIG_URL=https://safe-testnet-tool.s3.eu-west-2.amazonaws.com/public-node_connection_info.config
 
     ;;
-
-
+    
   *)
     echo " Invalid selection, please choose 1-4 to select a testnet"
     ;;
 esac
+
 echo ""
 echo "                    Your node will attempt to connect to "$SAFENET
 echo "" 
-
-
 echo "                   For some testnets, it will be necessary to allocate a fixed size for your vault."
 echo "                   Again please refer to threads on https://safenetforum.org for details. If no size"
 echo "                   is specified, 5GB will be selected as default."
@@ -128,26 +130,28 @@ GB_ALLOCATED=5
 read -e -i "$GB_ALLOCATED" -p '                   How many GB do you want to allocate to your vault? [5]' GB_ALLOCATED
 VAULT_SIZE=${GB_ALLOCATED}
 echo "                   $VAULT_SIZE" "GB will be allocated for storing chunks"
-
 echo ""
 echo ""
 echo ""
-echo ""
-echo "              Certain setups may require the default port that SAFE uses to be changed"
-echo "              Most users will be OK with the default port at 12000 "
-echo "              Only change this if you know what you are doing."
 echo ""
 
-#####################################################################################################################################change for default port
-#SAFE_PORT=12000
-#read -e -i "$SAFE_PORT" -p '              Press Enter to accept the default or edit it here [12000]' #SAFE_PORT
-#echo $SAFE_PORT
+EOF
+
+
+echo "              ==============ADVANCED USERS ONLY============================="
+echo "              Certain setups may require the default SAFE port to be changed"
+echo "              Almost all users will be OK with the default port 12000 "
+echo "              Only change this if you really know what you are doing."
+echo ""
 
 SAFE_PORT=12000
 read -e -i "$name" -p "              Press Enter to accept the default or edit it here $SAFE_PORT    " input
 SAFE_PORT="${input:-$SAFE_PORT}"
-echo $SAFE_PORT
-###########################################################################################################################################################
+#echo $SAFE_PORT
+echo ""
+echo ""
+echo ""
+echo ""
 
 sleep 2
 
@@ -158,48 +162,95 @@ echo ""
 echo "              Now installing SAFE and all necessary dependencies."
 echo "              This may take a few minutes depending on your download speed  "
 echo "              Thank you for your patience  "
-echo ""            
+echo ""
 echo -ne $(ColorBlue "            The world has waited a long time for SAFE - just a few seconds more....")
 echo ""
 echo ""
+echo ""
+echo ""
+echo "                           Please ignore warning about apt"
+echo ""
 
+TMP_GH_DIR=$HOME/safe_github_tmp
+
+rm -rf "$HOME"/.safe # clear out any old files
+
+if [[ -d "$TMP_GH_DIR" ]]
+then
+    rm -rf $TMP_GH_DIR
+fi
 
 sudo apt -qq update >/dev/null
-sudo apt -qq install -y snapd build-essential moreutils >/dev/null
+sudo apt -qq install -y snapd build-essential moreutils tree >/dev/null
 sudo snap install curl
 sudo snap install rustup --classic
 rustup toolchain install stable
-cargo install vdash
+
+mkdir -p \
+	$TMP_GH_DIR \
+	$HOME/.safe/cli \
+	$HOME/.safe/node
+
+PATH=$PATH:/$HOME/.safe/cli:$HOME/.cargo/bin   
+
+
+#save time testing   - UNCOMMENT THIS BEFORE RELEASE
+git clone https://github.com/maidsafe/safe_network.git $TMP_GH_DIR
+cd $TMP_GH_DIR
+
+git pull       # COMMENT THIS OUT BEFORE RELEASE
 
 
 
 
-PATH=$PATH:/$HOME/.safe/cli:$HOME/.cargo/bin 
+
+
+# add options for --features flags
+#$BUILD_CMD="cargo build --release"
+
+#$BUILD_CMD
+
+cargo build --release
+
+
+#install the latest binaries
+cp $TMP_GH_DIR/target/release/safe ~/.safe/cli/
+cp $TMP_GH_DIR/target/release/sn_node ~/.safe/node/
+echo $(safe --version) "CLI install complete"
+echo $(safe node bin-version) "Node install complete"
+sleep 2
+
+tree  $HOME/.safe
+sleep 3
+
+# cargo install vdash
+
+SAFENET=comnet
+CONFIG_URL=https://sn-comnet.s3.eu-west-2.amazonaws.com/node_connection_info.config
 
 ACTIVE_IF=$( ( cd /sys/class/net || exit; echo *)|awk '{print $1;}')
-LOCAL_IP=$(echo $(ifdata -pa "$ACTIVE_IF"))
-PUBLIC_IP=$(echo $(curl -s ifconfig.me))
+LOCAL_IP=$(ifdata -pa "$ACTIVE_IF")
+PUBLIC_IP=$(curl -s ifconfig.me)
 SAFE_PORT=$SAFE_PORT
-VAULT_SIZE=$((1024*1024*1024*$GB_ALLOCATED))
+#VAULT_SIZE=$(((1024*1024*1024)*$GB_ALLOCATED))
+VAULT_SIZE=1073741824
 LOG_DIR=$HOME/.safe/node/local_node
 SN_CLI_QUERY_TIMEOUT=3600
 
 # Install Safe software and configuration
 
-rm -rf "$HOME"/.safe # clear out any old files
-
 #get the CLI
-curl -so- https://raw.githubusercontent.com/maidsafe/safe_network/master/resources/scripts/install.sh | bash
+#curl -so- https://raw.githubusercontent.com/maidsafe/safe_network/master/resources/scripts/install.sh | bash
+#safe node install
 echo ""
 echo ""
 echo ""
-echo $(safe --version) "install complete"
 
 safe networks add $SAFENET "$CONFIG_URL"
 safe networks switch $SAFENET
 safe networks
 sleep 2
-safe node install
+
 echo ""
 echo ""
 echo ""
@@ -214,17 +265,6 @@ echo "--local-addr" "$LOCAL_IP"":"$SAFE_PORT
 echo "--public-addr" "$PUBLIC_IP"":"$SAFE_PORT
 echo "--log-dir" "$LOG_DIR"
 echo "--skip-auto-port-forwarding"
-
-
-############################neik proposal to run as service	###################################################################################################
-
-#RUST_LOG=safe_network=trace,qp2p=info \
-#    ~/.safe/node/sn_node \
-#    --max-capacity $VAULT_SIZE \
-#    --local-addr "$LOCAL_IP":$SAFE_PORT \
-#    --public-addr "$PUBLIC_IP":$SAFE_PORT \
-#    --skip-auto-port-forwarding \
-#    --log-dir "$LOG_DIR" & disown
 
 # start as service 
 
@@ -254,20 +294,30 @@ WantedBy=multi-user.target"\
 |sudo tee /etc/systemd/system/sn_node.service
 
 sudo systemctl start sn_node.service
-
-####################################################################################################################################################################
+#sudo systemctl status sn_node.service
 
 #clear
+: <<'EOF'
 echo "_____________________________________________________________________________________________________"
 echo ""
 echo "                    Now cofiguring vdash from @happybeing"
 echo ""
 echo ""
-echo "       press 'q' to quit vdash     --- this will not interfere with your node ---"
-echo  ""
-
+echo "       press 'q' to quit vdash     --- this will not stop your node ---"
+echo ""
+echo ""
+echo "    You can cycle through different Safe nodes using left/right arrow keys, and zoom the timeline scale in/out using 'i' and 'o' (or '+' and '-')."
+echo ""
+echo "    Feature requests and discussion are currently summarised in the opening post of the Safe Network forum topic: Node Dashboard ideas please!."
+echo ""
+echo ""
+echo ""
+echo ""
+echo ""
+echo ""
 sleep 3
 
 # Install or update vdash
 
 vdash "$LOG_DIR"/sn_node.log
+EOF
