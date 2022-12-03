@@ -19,14 +19,9 @@ The following packages will be installed/updated if they do not already exist on
 - safe_network
 - moreutils
 - tree
-- build-essential
-- rust
 - vdash
 
 ### Any existing SAFE installation will be DELETED  ###
 
- vdash is a program by @happybeing to monitor your SAFE node. https://github.com/happybeing/vdash
- Vdash requires Rust to be installed
-
-Once everthing is installed, your node will connect to the chosen testnet and vdash will be
-installed to display network and node information
+ 
+Once everthing is installed, your node will connect to the runnng testnet 
