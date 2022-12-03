@@ -31,9 +31,11 @@ echo ""
 echo ""
 echo ""
 echo  "    This script will install everything needed to join the SAFE network testnets for "
-echo  "    Ubuntu like machines"
-echo  "    The programs lised below will be installed if required. Your root password will be required."
+echo  "    Debian-based distros"
 echo ""
+echo ""
+echo ""
+echo  "    The programs listed below will be installed. You will need the root password."
 echo ""
 echo " - snap                   -assists in installin the dependencies"
 echo " - curl                   -fetches the SAFE applications"
@@ -47,7 +49,7 @@ echo " - rust                   -Rust is a systems programming lanuage   "
 echo ""
 echo ""
 echo ""
-echo -ne $(ColorRed " ################# Any existing SAFE installation will be DELETED ##################")
+echo -ne $(ColorRed "         ################# Any existing SAFE installation will be DELETED ##################")
 echo ""
 echo ""
 echo ""
@@ -132,15 +134,17 @@ echo ""
 
 EOF
 
+
+echo "              ==============ADVANCED USERS ONLY============================="
 echo "              Certain setups may require the default SAFE port to be changed"
-echo "              Almost all users will be OK with the default port at 12000 "
+echo "              Almost all users will be OK with the default port 12000 "
 echo "              Only change this if you really know what you are doing."
 echo ""
 
 SAFE_PORT=12000
 read -e -i "$name" -p "              Press Enter to accept the default or edit it here $SAFE_PORT    " input
 SAFE_PORT="${input:-$SAFE_PORT}"
-echo $SAFE_PORT
+#echo $SAFE_PORT
 echo ""
 echo ""
 echo ""
@@ -186,16 +190,27 @@ mkdir -p \
 
 PATH=$PATH:/$HOME/.safe/cli:$HOME/.cargo/bin   
 
+
+#save time testing   - UNCOMMENT THIS BEFORE RELEASE
 git clone https://github.com/maidsafe/safe_network.git $TMP_GH_DIR
 cd $TMP_GH_DIR
 
+git pull       # COMMENT THIS OUT BEFORE RELEASE
+
+
+
+
+
+
 # add options for --features flags
+#$BUILD_CMD="cargo build --release"
+
+#$BUILD_CMD
 
 cargo build --release
 
 
-
-
+#install the latest binaries
 cp $TMP_GH_DIR/target/release/safe ~/.safe/cli/
 cp $TMP_GH_DIR/target/release/sn_node ~/.safe/node/
 echo $(safe --version) "CLI install complete"
@@ -207,11 +222,15 @@ sleep 3
 
 # cargo install vdash
 
+SAFENET=comnet
+CONFIG_URL=https://sn-comnet.s3.eu-west-2.amazonaws.com/node_connection_info.config
+
 ACTIVE_IF=$( ( cd /sys/class/net || exit; echo *)|awk '{print $1;}')
 LOCAL_IP=$(ifdata -pa "$ACTIVE_IF")
 PUBLIC_IP=$(curl -s ifconfig.me)
 SAFE_PORT=$SAFE_PORT
-VAULT_SIZE=$((1024*1024*1024*$GB_ALLOCATED))
+#VAULT_SIZE=$(((1024*1024*1024)*$GB_ALLOCATED))
+VAULT_SIZE=1073741824
 LOG_DIR=$HOME/.safe/node/local_node
 SN_CLI_QUERY_TIMEOUT=3600
 
