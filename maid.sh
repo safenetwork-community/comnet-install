@@ -53,14 +53,9 @@ fi
 
 TEST_NET_SELECTION=$(whiptail --title "Testnet Selection" --radiolist \
 "Testnet providers" 20 70 10 \
-"1" "Custom Testnet" OFF \
-"2" "Local Baby Fleming" OFF \
-"3" "Comnet by           @josh" ON \
-"4" "Dreamnet by         @dreamerchris     " OFF \
-"5" "Folaht IPv4 by      @folaht" OFF \
-"6" "Folaht IPv6 by      @folaht" OFF \
-"7" "Southnet by         @southside" OFF \
-"8" "Playground official test" OFF 3>&1 1>&2 2>&3)
+"1" "Local Baby Fleming" OFF \
+"2" "Comnet by           @josh" ON \
+"4" "Dreamnet by         @dreamerchris     " OFF 3>&1 1>&2 2>&3)
 
 if [[ $? -eq 255 ]]; then
 exit 0
@@ -69,30 +64,12 @@ if [[ $? -eq 255 ]]; then
 exit 0
 fi
 
-if [[ "$TEST_NET_SELECTION" == "1" ]]; then
-SAFENET=Custom
-CONFIG_URL=$(whiptail --title "Custom Testnet" --inputbox "Enter config url" 8 40 3>&1 1>&2 2>&3)
-elif [[ "$TEST_NET_SELECTION" == "2" ]]; then
+if [[ "$TEST_NET_SELECTION" == "2" ]]; then
 SAFENET=baby-fleming
 CONFIG_URL=n/a
 elif [[ "$TEST_NET_SELECTION" == "3" ]]; then
 SAFENET=comnet
 CONFIG_URL=https://sn-comnet.s3.eu-west-2.amazonaws.com/comnet-network-contacts
-elif [[ "$TEST_NET_SELECTION" == "4" ]]; then
-SAFENET=dreamnet
-CONFIG_URL=https://nx27631.your-storageshare.de/s/E34nMeqKg2eWnBS/download/section_tree
-elif [[ "$TEST_NET_SELECTION" == "5" ]]; then
-SAFENET=folaht-ipv4
-CONFIG_URL=https://link.tardigradeshare.io/s/julx763rsy2egbnj2nixoahpobgq/rezosur/koqfig/sjefolaht_ipv4_node_connection_info.config?wrap=0
-elif [[ "$TEST_NET_SELECTION" == "6" ]]; then
-SAFENET=folaht-ipv6
-CONFIG_URL=https://link.tardigradeshare.io/s/julx763rsy2egbnj2nixoahpobgq/rezosur/koqfig/sjefolaht_node_connection_info.config?wrap=0
-elif [[ "$TEST_NET_SELECTION" == "7" ]]; then
-SAFENET=southnet
-CONFIG_URL=https://comnet.snawaffadyke.com/southsidenet.config
-elif [[ "$TEST_NET_SELECTION" == "8" ]]; then
-SAFENET=playground
-CONFIG_URL=https://safe-testnet-tool.s3.eu-west-2.amazonaws.com/public-node_connection_info.config
 fi
 
 ############################################## select if node should be started
@@ -192,7 +169,6 @@ curl -so- https://raw.githubusercontent.com/maidsafe/safe_network/main/resources
 safe node install
 
 rustup update
-cargo install vdash
 ############################################## compile from sourse if selected
 if [[ "$COMPILE_FROM_SOURCE" == "2" ]]; then
 
@@ -304,13 +280,3 @@ fi
 
 # generate keys for cli
 safe keys create --for-cli
-
-
-# make script to start vdash with relavant log files
-echo -n "#!/bin/bash
-vdash $LOG_FILES" \
-| tee $HOME/.cargo/bin/vdash.sh &> /dev/null
-
-chmod u+x $HOME/.cargo/bin/vdash.sh
-
-vdash.sh
