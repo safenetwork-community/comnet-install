@@ -1,6 +1,9 @@
 # comnet-install
 
-community testing for the SAFE network
+Community testing for the SAFE network
+
+The project has moved on and this tool is no longer relevant now
+
 
 This is only for Ubuntu-like distros at the moment.
 A script for a relative n00b to quickly get the safe cli and node binaries installed, connect to a test net and use vdash to monitor their node. 
